@@ -68,12 +68,12 @@ public class StartRemotePeers {
 				
 				// *********************** IMPORTANT *************************** //
 				// If your program is JAVA, use this line.
-				// Runtime.getRuntime().exec("ssh " + "yiheng.qiu@"+ pInfo.peerAddress + " cd " + path + "; java peerProcess.java " + pInfo.peerId);
+				 Runtime.getRuntime().exec("ssh " + "yiheng.qiu@"+ pInfo.peerAddress + " cd " + path + "; java peerProcessManager.java " + pInfo.peerId);
 
 				/* This is for testing purpose
 				String user = "yiheng.qiu";
 				String host = pInfo.peerAddress;
-				String command = " cd " + path + "; java peerProcess.java " + pInfo.peerId;
+				String command = " cd " + path + "; java peerProcessManager.java " + pInfo.peerId;
 
 				List<String> commandsList = new ArrayList<>();
 				commandsList.add("ssh ");
