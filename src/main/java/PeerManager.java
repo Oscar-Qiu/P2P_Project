@@ -2,9 +2,9 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.*;
+public class PeerManager {
+    /*This class is for managing all the peers*/
 
-
-public class peerProcessManager {
     /*---The beginning of config info---*/
     public int NumberOfPreferredNeighbors;
     public int UnchokingInterval;
@@ -14,51 +14,74 @@ public class peerProcessManager {
     public int PieceSize;
     /*---End of config info---*/
 
-    public int currProcessID;
+    public String currProcessID;
     // Each peer should keep track of info of other peers
    // List<RemotePeerInfo> peerInfoList = new ArrayList<>();
     // Map the id to each peer
-    Map<String,RemotePeerInfo> peerInfoMap = new HashMap<>();
-    Map<String,boolean[]> idToBitField = new HashMap<>();
+    public Map<String,RemotePeerInfo> peerInfoMap = new HashMap<>();
+
+    public  Map<String,boolean[]> idToBitField = new HashMap<>();
     // Client process manager to send info to other peers
-    ClientProcess c;
+    public ClientProcess c;
+    public ServerProcess s;
 
-
-    public peerProcessManager(){};
-    public peerProcessManager(int id)
+    public PeerManager(){};
+    public PeerManager(String id)
     {
         currProcessID = id;
+        System.out.println("The current process id is "+ currProcessID);
 
     }
     public void init(){
+
         readCommonCFG();
+
         readPeerInfo();
         // Set all the bits to 0 if the hasField is 0, otherwise set to true
         initBitField();
         // Start TCP connection to all peers that start before it
+        startTCPConnection();
+
+
+//        System.out.println("nmsl");
     }
     public void readCommonCFG(){
         String line;
         try {
-            BufferedReader in = new BufferedReader(new FileReader("resources/Common.cfg"));
+            BufferedReader in = new BufferedReader(new FileReader("../../../resources/Common.cfg"));
 
             while((line = in.readLine()) != null) {
 
                 String[] tokens = line.split("\\s+");
                 String identifier = tokens[0];
-                switch (identifier)
-                {
-                    case "NumberOfPreferredNeighbors" -> NumberOfPreferredNeighbors = Integer.parseInt(tokens[1]);
-                    case "UnchokingInterval" -> UnchokingInterval = Integer.parseInt(tokens[1]);
-                    case "OptimisticUnchokingInterval" -> OptimisticUnchokingInterval = Integer.parseInt(tokens[1]);
-                    case "FileName" -> FileName = tokens[1];
-                    case "fileSize" -> FileSize = Integer.parseInt(tokens[1]);
-                    case "pieceSize" -> PieceSize = Integer.parseInt(tokens[1]);
+                switch (identifier) {
+                    case "NumberOfPreferredNeighbors":
+                        NumberOfPreferredNeighbors = Integer.parseInt(tokens[1]);
+                        break;
+                    case "UnchokingInterval":
+                        UnchokingInterval = Integer.parseInt(tokens[1]);
+                        break;
+                    case "OptimisticUnchokingInterval":
+                        OptimisticUnchokingInterval = Integer.parseInt(tokens[1]);
+                        break;
+                    case "FileName":
+                        FileName = tokens[1];
+                        break;
+                    case "fileSize":
+                        FileSize = Integer.parseInt(tokens[1]);
+                        break;
+                    case "pieceSize":
+                        PieceSize = Integer.parseInt(tokens[1]);
+                        break;
+                    default:
+                        break;
                 }
+
 
             }
            // System.out.println(NumberOfPreferredNeighbors);
             in.close();
+            System.out.println("The number of neighbors are "+NumberOfPreferredNeighbors);
         }
         catch(FileNotFoundException e){
             System.out.println("The common.cfg has not been found");
@@ -112,8 +135,28 @@ public class peerProcessManager {
         }
     }
     public void startTCPConnection(){
-        // Send HandShake message
-        // TODO: only establish TCP Connection to peers before it
-        c.sendHandShakeMsg();
+//        // Send HandShake message to other peers
+        RemotePeerInfo currPeer = peerInfoMap.get(currProcessID);
+        String peerAddress = currPeer.peerAddress;
+        String port = currPeer.peerPort;
+//        // Needs to figure out later on
+        c = new ClientProcess(peerAddress,port,currProcessID); // blocking!!!
+        s = new ServerProcess(port); // blocking!!!
+//
+
+//        // 12:00
+
+
+    }
+    public  static void main(String[] args) throws  Exception{
+//        Process serverProcess = Runtime.getRuntime().exec("java ServerProcess.java"); // 2h nonblocking
+//        Thread.sleep(2000);
+        Process clientProcess = Runtime.getRuntime().exec("java ClientProcess.java"); // 3h  nonblocking
+//        serverProcess.getInputStream().transferTo(System.out);
+//        serverProcess.getErrorStream().transferTo(System.out);
+        clientProcess.getInputStream().transferTo(System.out);
+        clientProcess.getErrorStream().transferTo(System.out);
+//        serverProcess.waitFor(); // 2:00(right) 5:00(wrong)
+        clientProcess.waitFor(); // 3:00(right) 5:00(wrong)
     }
 }

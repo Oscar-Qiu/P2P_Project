@@ -59,21 +59,24 @@ public class StartRemotePeers {
 			// get current path
 			// String path = System.getProperty("user.dir");
 			String path = "P2P_Project/src/main/java";
-			
+			FileOutputStream bf = new FileOutputStream(new File("test.txt"));
 			// start clients at remote hosts
 			for (int i = 0; i < myStart.peerInfoVector.size(); i++) {
+
 				RemotePeerInfo pInfo = (RemotePeerInfo) myStart.peerInfoVector.elementAt(i);
 				
 				System.out.println("Start remote peer " + pInfo.peerId +  " at " + pInfo.peerAddress );
 				
 				// *********************** IMPORTANT *************************** //
 				// If your program is JAVA, use this line.
-				 Runtime.getRuntime().exec("ssh " + "yiheng.qiu@"+ pInfo.peerAddress + " cd " + path + "; java peerProcessManager.java " + pInfo.peerId);
+				// Runtime.getRuntime().exec("ssh " + "yiheng.qiu@"+ pInfo.peerAddress + " cd " + path + "; java PeerProcess.java " + pInfo.peerId);
 
-				/* This is for testing purpose
+				 // This is for testing purpose, these lines will generate out.txt
+
+				/*
 				String user = "yiheng.qiu";
 				String host = pInfo.peerAddress;
-				String command = " cd " + path + "; java peerProcessManager.java " + pInfo.peerId;
+				String command = " cd " + path + "; javac PeerProcess.java; java PeerProcess " + pInfo.peerId;
 
 				List<String> commandsList = new ArrayList<>();
 				commandsList.add("ssh ");
@@ -81,7 +84,6 @@ public class StartRemotePeers {
 				commandsList.add(command);
 
 				ProcessBuilder builder = new ProcessBuilder(commandsList);
-
 				builder.redirectOutput(new File("out.txt"));
 				builder.redirectErrorStream(true);
 
@@ -93,18 +95,39 @@ public class StartRemotePeers {
 
 				 */
 
+				String line = String.format("ssh yiheng.qiu@%s cd %s ; javac PeerProcess.java ; java PeerProcess %s", pInfo.peerAddress, path, pInfo.peerId);
+				System.out.println("Executing "+ line);
+//				String line = "ssh \" + \"yiheng.qiu@\"+ pInfo.peerAddress + \" cd \" + path + \"; java PeerProcess.java \" + pInfo.peerId";
+				Process p = Runtime.getRuntime().exec( line  );
+				p.getInputStream().transferTo(bf);
+//				p.getErrorStream().transferTo(bf);
+				int exitVal = p.waitFor();
+				System.out.println(line + "Completed");
+//					Process p = Runtime.getRuntime().exec( "echo 1123" );
+//				ProcessBuilder builder = new ProcessBuilder("echo 123");
+//				builder.redirectOutput(f);
+//				builder.redirectError(f);
+//
+//				Process process = builder.start();
+//				process.waitFor();
+//
+//				System.out.println(process.exitValue());
 
 
 
 				// If your program is C/C++, use this line instead of the above line. 
 				//Runtime.getRuntime().exec("ssh " + pInfo.peerAddress + " cd " + path + "; ./peerProcess " + pInfo.peerId);
 			}		
-			System.out.println("Starting all remote peers has done." );
-
+//			System.out.println("Starting all remote peers has done." );
+			bf.close();
 		}
 		catch (Exception ex) {
 			System.out.println(ex);
 		}
+		finally {
+
+		}
+
 	}
 
 }

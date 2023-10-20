@@ -1,0 +1,27 @@
+The current process id is 1001
+The number of neighbors are 3
+nmsl
+The current process id is 1002
+The number of neighbors are 3
+nmsl
+The current process id is 1003
+The number of neighbors are 3
+nmsl
+The current process id is 1004
+The number of neighbors are 3
+nmsl
+The current process id is 1005
+The number of neighbors are 3
+nmsl
+The current process id is 1006
+The number of neighbors are 3
+nmsl
+The current process id is 1007
+The number of neighbors are 3
+nmsl
+The current process id is 1008
+The number of neighbors are 3
+nmsl
+The current process id is 1009
+The number of neighbors are 3
+nmsl

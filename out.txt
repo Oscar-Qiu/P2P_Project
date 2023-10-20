@@ -1,15 +1,2 @@
-
-###############################
-# !!! NOTICE TO ALL USERS !!! #
-###############################
-
-In order to access this system, Gatorlink credentials must be used (the same
-username and password that is used to access all other UF systems like ONE.UF
-or my.ufl.edu).
-
-EX: albert.alligator@ufl.edu would login using the username albert.alligator.
-
-If you are encountering issues with accessing your account or have problems
-with your files, please contact CISE support at support@cise.ufl.edu.
-1001
-This is my test
+Error: Could not find or load main class PeerProcess
+Caused by: java.lang.ClassNotFoundException: PeerProcess
