@@ -1,22 +1,28 @@
 import java.io.IOException;
 import java.net.ServerSocket;
 
-public class ServerProcess {
+public class ServerProcess extends Thread {
     public ServerSocket listener;
     public int port;
+
     public ServerProcess(String port)
     {
-
         this.port = Integer.parseInt(port);
+
+        start();
+    }
+
+    public void run() {
         // Initialize the serverSocket with port number
         try {
             listener = new ServerSocket(this.port);
+            System.out.println("Creating server");
             // used to terminate the number of connections later on
             int numAccept = 0;
             while(true)
             {
                 numAccept += 1;
-                new ServerProcessHandler(listener.accept(),1000).start();
+                new ServerProcessHandler(listener.accept(), 1000).start();
                 System.out.println("Handling " + numAccept);
 //                if(numAccept > 10){
 //                    break;
@@ -26,8 +32,10 @@ public class ServerProcess {
         catch (IOException e)
         {
             System.out.println("I/O Exception happen when initialize server socket");
+            System.out.println(e);
         }
     }
+
     public static  void main(String[] args) throws  Exception{
         // Send HandShake message to other peers
 //        RemotePeerInfo currPeer = peerInfoMap.get(currProcessID);

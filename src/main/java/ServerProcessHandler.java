@@ -10,11 +10,13 @@ public class ServerProcessHandler extends Thread {
     public ObjectInputStream in;
     HandShake hs;
     public ServerProcessHandler(){};
-    public ServerProcessHandler(Socket connection, int peerID){
+
+    public ServerProcessHandler(Socket connection, int peerID) {
         this.connection = connection;
         this.peerID = peerID;
     }
-    public void run(){
+
+    public void run() {
         try {
             out = new ObjectOutputStream(this.connection.getOutputStream());
             out.flush();
@@ -22,7 +24,7 @@ public class ServerProcessHandler extends Thread {
             hs = new HandShake();
             byte[] receivedMessage = (byte[])in.readObject();
             int receivedPeerID = hs.parseHandShakeMsg(receivedMessage);
-
+            System.out.println("Received peer ID: " + receivedPeerID);
             if(this.peerID!=receivedPeerID)
             {
                 System.out.println("The peerID is corrupt during transmission");
