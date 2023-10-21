@@ -23,6 +23,7 @@ public class HandShake {
         byteStream.write(peerIDBytes);
         return byteStream.toByteArray();
     }
+
     public int parseHandShakeMsg(byte[] receivedMsg) throws IOException{
         System.out.println("The received message length is: " + receivedMsg.length);
         if(receivedMsg.length!=HANDSHAKE_LENGTH){
