@@ -17,13 +17,11 @@ public class ClientProcess {
     public ClientProcess() {
     }
 
+    ;
+
     public ClientProcess(String peerAddress, String port, String currID) {
         this.currID = Integer.parseInt(currID);
         try {
-
-            peerAddress = "localhost"; // added to test locally, change to target address
-            System.out.println("Attempting to connect to peer");
-
             requestSocket = new Socket(peerAddress, Integer.parseInt(port));
             out = new ObjectOutputStream(requestSocket.getOutputStream());
             out.flush();
@@ -50,8 +48,6 @@ public class ClientProcess {
         } finally {
             //Close connections
             try {
-                System.out.println("Closing client");
-
                 in.close();
                 out.close();
                 requestSocket.close();
@@ -74,7 +70,6 @@ public class ClientProcess {
             out.writeObject(messageToSend);
             out.flush();
             // incoming message from server
-            System.out.println("Handshake response message:");
             String s = (String) in.readObject();
             System.out.println(s);
         } catch (IOException e) {

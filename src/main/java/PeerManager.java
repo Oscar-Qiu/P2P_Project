@@ -2,7 +2,6 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.*;
-
 public class PeerManager {
     /*This class is for managing all the peers*/
 
@@ -17,17 +16,12 @@ public class PeerManager {
 
     public String currProcessID;
     // Each peer should keep track of info of other peers
-    // List<RemotePeerInfo> peerInfoList = new ArrayList<>();
+   // List<RemotePeerInfo> peerInfoList = new ArrayList<>();
     // Map the id to each peer
     public Map<String,RemotePeerInfo> peerInfoMap = new HashMap<>();
 
     public  Map<String,boolean[]> idToBitField = new HashMap<>();
     // Client process manager to send info to other peers
-
-    public ArrayList<String> peerIDs = new ArrayList<>();
-    public ArrayList<String> peerAddress = new ArrayList<>();
-
-
     public ClientProcess c;
     public ServerProcess s;
 
@@ -49,7 +43,7 @@ public class PeerManager {
         startTCPConnection();
 
 
-        // System.out.println("nmsl");
+//        System.out.println("nmsl");
     }
     public void readCommonCFG(){
         String line;
@@ -73,32 +67,32 @@ public class PeerManager {
                     case "FileName":
                         FileName = tokens[1];
                         break;
-                    case "FileSize":
+                    case "fileSize":
                         FileSize = Integer.parseInt(tokens[1]);
                         break;
-                    case "PieceSize":
+                    case "pieceSize":
                         PieceSize = Integer.parseInt(tokens[1]);
                         break;
                     default:
                         break;
                 }
+
+
             }
            // System.out.println(NumberOfPreferredNeighbors);
             in.close();
             System.out.println("The number of neighbors are "+NumberOfPreferredNeighbors);
         }
-        catch(FileNotFoundException e) {
+        catch(FileNotFoundException e){
             System.out.println("The common.cfg has not been found");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println(e.toString());
         }
     }
-
     public void readPeerInfo(){
         String st;
         try {
-            BufferedReader in = new BufferedReader(new FileReader("../../../resources/PeerInfo.cfg"));
+            BufferedReader in = new BufferedReader(new FileReader("resources/PeerInfo.cfg"));
             while((st = in.readLine()) != null) {
 
                 String[] tokens = st.split("\\s+");
@@ -107,10 +101,8 @@ public class PeerManager {
                 //    System.out.println(tokens[x]);
                 //}
                 //System.out.println("tokens end ----");
-                peerInfoMap.put(tokens[0], new RemotePeerInfo(tokens[0], tokens[1], tokens[2], tokens[3].equals("1")));
+                peerInfoMap.put(tokens[0],new RemotePeerInfo(tokens[0], tokens[1], tokens[2], tokens[3].equals("1")));
 
-                peerIDs.add(tokens[0]);
-                peerAddress.add(tokens[1]);
             }
 
             in.close();
@@ -119,19 +111,17 @@ public class PeerManager {
             System.out.println(ex.toString());
         }
     }
-
-    public int getPieceCount() {
-        int res = (FileSize / PieceSize);
-        if(FileSize % PieceSize != 0)
+    public int getPieceCount(){
+        int res= (FileSize / PieceSize);
+        if(FileSize % PieceSize !=0)
         {
             res++;
         }
         return res;
     }
+    public void initBitField(){
 
-    public void initBitField() {
-
-        for(Map.Entry<String, RemotePeerInfo> peer: peerInfoMap.entrySet())
+        for(var peer: peerInfoMap.entrySet())
         {
             boolean[] bitfield = new boolean[getPieceCount()];
             if(peer.getValue().hasFile)
@@ -144,44 +134,28 @@ public class PeerManager {
             idToBitField.put(id,bitfield);
         }
     }
-
-    public void startTCPConnection() {
+    public void startTCPConnection(){
 //        // Send HandShake message to other peers
         RemotePeerInfo currPeer = peerInfoMap.get(currProcessID);
         String peerAddress = currPeer.peerAddress;
         String port = currPeer.peerPort;
-
 //        // Needs to figure out later on
-
-        s = new ServerProcess(port); // blocking!!
-
-        // Find which peers to send a connection to (only connect to prev peers in PeerInfo.cfg)
-        String p;
-        for(int i = 0; i < peerIDs.size(); i++)
-        {
-            p = peerIDs.get(i);
-            if(p.equals(currProcessID)) {
-                i = peerIDs.size();
-            }
-            else {
-                c = new ClientProcess(peerInfoMap.get(p).peerAddress, peerInfoMap.get(p).peerPort, currProcessID); // blocking!!!
-            }
-        }
+        c = new ClientProcess(peerAddress,port,currProcessID); // blocking!!!
+        s = new ServerProcess(port); // blocking!!!
 //
 
 //        // 12:00
 
 
     }
-
     public  static void main(String[] args) throws  Exception{
 //        Process serverProcess = Runtime.getRuntime().exec("java ServerProcess.java"); // 2h nonblocking
 //        Thread.sleep(2000);
         Process clientProcess = Runtime.getRuntime().exec("java ClientProcess.java"); // 3h  nonblocking
 //        serverProcess.getInputStream().transferTo(System.out);
 //        serverProcess.getErrorStream().transferTo(System.out);
-        //clientProcess.getInputStream().transferTo(System.out);
-        //clientProcess.getErrorStream().transferTo(System.out);
+        clientProcess.getInputStream().transferTo(System.out);
+        clientProcess.getErrorStream().transferTo(System.out);
 //        serverProcess.waitFor(); // 2:00(right) 5:00(wrong)
         clientProcess.waitFor(); // 3:00(right) 5:00(wrong)
     }
