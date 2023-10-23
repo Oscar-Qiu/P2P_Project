@@ -15,7 +15,7 @@ public class Killer {
                 String peerAddress = peerManager.peerAddress;
                 String port = peerManager.peerPort;
                 int id = ServerProcess.magicKiller;
-                ClientProcess clientProcess = new ClientProcess(peerAddress, port, String.valueOf(id));
+                ClientProcess clientProcess = new ClientProcess(peerAddress, port, String.valueOf(id),peerManager.peerId);
                 clientProcess.sendHandShakeMsg();
             }
             catch(Exception e){

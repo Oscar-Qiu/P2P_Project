@@ -4,14 +4,15 @@ import java.net.ServerSocket;
 public class ServerProcess extends Thread {
     public ServerSocket listener;
     public int port;
-    public int peerID;
     public volatile boolean shouldBreak = false;
     public static int magicKiller = 999999842;
+    public String currID;
 
-    public ServerProcess(String port)
+    public ServerProcess(String port, String currID)
     {
         System.out.println("Trying to bind " + port);
         this.port = Integer.parseInt(port);
+        this.currID = currID;
         start();
     }
 
@@ -19,13 +20,13 @@ public class ServerProcess extends Thread {
         // Initialize the serverSocket with port number
         try {
             listener = new ServerSocket(this.port);
-            System.out.println("Creating server");
+            System.out.println("Server created, waiting for peers");
             // used to terminate the number of connections later on
             int numAccept = 0;
             while(true)
             {
                 numAccept += 1;
-                new ServerProcessHandler(listener.accept(), 1000, this).start();
+                new ServerProcessHandler(listener.accept(), currID, this).start();
                 System.out.println("Handling " + numAccept);
 //                if(numAccept > 10){
 //                    break;
