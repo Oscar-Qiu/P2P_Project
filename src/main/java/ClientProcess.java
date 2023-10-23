@@ -95,6 +95,8 @@ public class ClientProcess extends Thread {
         byte[] messageToSend = hs.generateHandShakeMsg(currID);
 
         try {
+           // String stringi = new String(messageToSend);
+            //System.out.println("Handshake message to send: "+ stringi);
             out.writeObject(messageToSend);
             out.flush();
 
@@ -118,6 +120,6 @@ public class ClientProcess extends Thread {
     }
 
     public static void main(String[] args) throws Exception {
-        ClientProcess c = new ClientProcess("localhost", "5000", "1000", "1001");
+        //ClientProcess c = new ClientProcess("localhost", "5000", "1000", "1001");
     }
 }

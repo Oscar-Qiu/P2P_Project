@@ -1,6 +1,7 @@
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class HandShake {
@@ -14,19 +15,41 @@ public class HandShake {
 
     // Generate handshake
     public byte[] generateHandShakeMsg(int peerID) throws IOException {
-        byteStream = new ByteArrayOutputStream();
+
+
+        System.out.println("----------------------------------------");
+       /* byteStream = new ByteArrayOutputStream();
 
         // Write the handshake header
+        System.out.println(HANDSHAKE_HEADER);
+
         byteStream.write(HANDSHAKE_HEADER.getBytes());
+        System.out.println(byteStream);
+
 
         // Write the 10 byte zero bits
         byteStream.write(new byte[ZERO_BITS_LENGTH]);
+        System.out.println(byteStream);
 
         // Write 4-byte peerID
         byte[] peerIDBytes = ByteBuffer.allocate(4).putInt(peerID).array();
         byteStream.write(peerIDBytes);
-
-        return byteStream.toByteArray();
+        System.out.println(byteStream.toByteArray());
+        return byteStream.toByteArray();*/
+        byte[] handshakeMessage = new byte[32];
+        byte[] headerBytes = HANDSHAKE_HEADER.getBytes(StandardCharsets.UTF_8);
+        System.arraycopy(headerBytes, 0, handshakeMessage, 0, headerBytes.length);
+        for (int i = 18; i < 28; i++) {
+            handshakeMessage[i] = 0;
+        }
+        System.out.println(handshakeMessage);
+        byte[] peerIDBytes = ByteBuffer.allocate(4).putInt(peerID).array();
+        System.arraycopy(peerIDBytes, 0, handshakeMessage, 28, peerIDBytes.length);
+        System.out.println(handshakeMessage);
+        String stringi = new String(handshakeMessage);
+        System.out.println("Handshake message to send: "+ stringi);
+        System.out.println("----------------------------------------");
+        return handshakeMessage;
     }
 
     // Parse an incoming handshake and return the received peer's id
