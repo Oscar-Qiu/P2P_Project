@@ -46,12 +46,22 @@ public class StartRemotePeers {
 			System.out.println(ex.toString());
 		}
 	}
-	
+
+	public static class ProcessTuple{
+		Process p;
+		String n;
+		public ProcessTuple(Process p, String n){
+			this.p = p;
+			this.n = n;
+		}
+	}
+
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
+		List<ProcessTuple> processList = new ArrayList<>();
 		try {
 			StartRemotePeers myStart = new StartRemotePeers();
 			myStart.getConfiguration();
@@ -96,13 +106,20 @@ public class StartRemotePeers {
 				 */
 
 				String line = String.format("ssh yiheng.qiu@%s cd %s ; javac PeerProcess.java ; java PeerProcess %s", pInfo.peerAddress, path, pInfo.peerId);
+//				String line = String.format("ssh yiheng.qiu@%s pkill -u yiheng.qiu", pInfo.peerAddress);
 				System.out.println("Executing "+ line);
 //				String line = "ssh \" + \"yiheng.qiu@\"+ pInfo.peerAddress + \" cd \" + path + \"; java PeerProcess.java \" + pInfo.peerId";
 				Process p = Runtime.getRuntime().exec( line  );
-				p.getInputStream().transferTo(bf);
+				processList.add(new ProcessTuple(p, line));
+
+			}
+			for(int i = processList.size() - 1; i >= 0; i--){
+				ProcessTuple p = processList.get(i);
+				System.out.println("Waiting for " + p.n);
+				p.p.getInputStream().transferTo(bf);
 //				p.getErrorStream().transferTo(bf);
-				int exitVal = p.waitFor();
-				System.out.println(line + "Completed");
+				int exitVal = p.p.waitFor();
+//				System.out.println(line + "Completed");
 //					Process p = Runtime.getRuntime().exec( "echo 1123" );
 //				ProcessBuilder builder = new ProcessBuilder("echo 123");
 //				builder.redirectOutput(f);
@@ -115,9 +132,9 @@ public class StartRemotePeers {
 
 
 
-				// If your program is C/C++, use this line instead of the above line. 
+				// If your program is C/C++, use this line instead of the above line.
 				//Runtime.getRuntime().exec("ssh " + pInfo.peerAddress + " cd " + path + "; ./peerProcess " + pInfo.peerId);
-			}		
+			}
 //			System.out.println("Starting all remote peers has done." );
 			bf.close();
 		}

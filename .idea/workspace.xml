@@ -5,17 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8dd0ea1d-2c5d-446c-8bda-104955293e1f" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/Killer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out.txt" beforeDir="false" afterPath="$PROJECT_DIR$/out.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/PeerInfo.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/resources/PeerInfo.cfg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ClientProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ClientProcess.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/HandShake.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/HandShake.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/RemotePeerInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/RemotePeerInfo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/PeerManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/PeerManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ServerProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ServerProcess.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ServerProcessHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ServerProcessHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/StartRemotePeers.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/StartRemotePeers.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/peerProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/PeerProcess.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/peerProcessManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/PeerManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,7 +73,7 @@
       <recent name="" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.ClientProcess">
+  <component name="RunManager" selected="Application.Killer">
     <configuration name="ClientProcess" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="ClientProcess" />
       <module name="P2P_Project" />
@@ -83,15 +81,8 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="PeerManager" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="PeerManager" />
-      <module name="P2P_Project" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="PeerProcess" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="PeerProcess" />
+    <configuration name="Killer" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Killer" />
       <module name="P2P_Project" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -117,13 +108,20 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="Test" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Test" />
+      <module name="P2P_Project" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.Killer" />
+        <item itemvalue="Application.StartRemotePeers" />
+        <item itemvalue="Application.Test" />
         <item itemvalue="Application.ClientProcess" />
         <item itemvalue="Application.ServerProcess" />
-        <item itemvalue="Application.PeerManager" />
-        <item itemvalue="Application.StartRemotePeers" />
-        <item itemvalue="Application.PeerProcess" />
       </list>
     </recent_temporary>
   </component>
@@ -146,7 +144,10 @@
       <workItem from="1697741398709" duration="2099000" />
       <workItem from="1697743509982" duration="12224000" />
       <workItem from="1697763038552" duration="10016000" />
-      <workItem from="1697805175979" duration="5377000" />
+      <workItem from="1697805175979" duration="5692000" />
+      <workItem from="1697919615115" duration="13356000" />
+      <workItem from="1697933197986" duration="12705000" />
+      <workItem from="1698017630713" duration="2787000" />
     </task>
     <servers />
   </component>

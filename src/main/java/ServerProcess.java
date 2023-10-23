@@ -4,11 +4,14 @@ import java.net.ServerSocket;
 public class ServerProcess extends Thread {
     public ServerSocket listener;
     public int port;
+    public int peerID;
+    public volatile boolean shouldBreak = false;
+    public static int magicKiller = 999999842;
 
     public ServerProcess(String port)
     {
+        System.out.println("Trying to bind " + port);
         this.port = Integer.parseInt(port);
-
         start();
     }
 
@@ -22,11 +25,15 @@ public class ServerProcess extends Thread {
             while(true)
             {
                 numAccept += 1;
-                new ServerProcessHandler(listener.accept(), 1000).start();
+                new ServerProcessHandler(listener.accept(), 1000, this).start();
                 System.out.println("Handling " + numAccept);
 //                if(numAccept > 10){
 //                    break;
 //                }
+                if(shouldBreak){
+                    System.out.println("Magic number detected Exiting.");
+                    System.exit(-1);
+                }
             }
         }
         catch (IOException e)
@@ -45,7 +52,7 @@ public class ServerProcess extends Thread {
 
 //        s = new ServerProcess(port);
 //        c = new ClientProcess(peerAddress,port,currProcessID);
-        new ServerProcess("5000");
+        //new ServerProcess("5000");
     }
 
 }

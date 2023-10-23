@@ -21,7 +21,7 @@ public class ClientProcess {
         this.currID = Integer.parseInt(currID);
         try {
 
-            peerAddress = "localhost"; // added to test locally, change to target address
+            // peerAddress = "localhost"; // added to test locally, change to target address
             System.out.println("Attempting to connect to peer");
 
             requestSocket = new Socket(peerAddress, Integer.parseInt(port));

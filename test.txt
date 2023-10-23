@@ -1,27 +1,77 @@
-The current process id is 1001
-The number of neighbors are 3
-nmsl
-The current process id is 1002
-The number of neighbors are 3
-nmsl
-The current process id is 1003
-The number of neighbors are 3
-nmsl
-The current process id is 1004
-The number of neighbors are 3
-nmsl
-The current process id is 1005
-The number of neighbors are 3
-nmsl
-The current process id is 1006
-The number of neighbors are 3
-nmsl
 The current process id is 1007
 The number of neighbors are 3
-nmsl
-The current process id is 1008
+Trying to bind 16011
+Creating server
+Attempting to connect to peer
+Handshake response message:
+NMSl
+Closing client
+Attempting to connect to peer
+Closing client
+Handling 1
+The received message length is: 32
+The header message is P2PFILESHARINGPROJ
+Received peer ID: 999999842
+The peerID is corrupt during transmission
+Handling 2
+Magic number detected Exiting.
+The current process id is 1004
 The number of neighbors are 3
-nmsl
-The current process id is 1009
+Trying to bind 16011
+Creating server
+Attempting to connect to peer
+Handshake response message:
+NMSl
+Closing client
+Attempting to connect to peer
+Closing client
+Handling 1
+The received message length is: 32
+The header message is P2PFILESHARINGPROJ
+Received peer ID: 999999842
+The peerID is corrupt during transmission
+Handling 2
+Magic number detected Exiting.
+The current process id is 1003
 The number of neighbors are 3
-nmsl
+Trying to bind 16013
+Creating server
+Attempting to connect to peer
+Handshake response message:
+NMSl
+Closing client
+Attempting to connect to peer
+Closing client
+Handling 1
+The received message length is: 32
+The header message is P2PFILESHARINGPROJ
+Received peer ID: 999999842
+The peerID is corrupt during transmission
+Handling 2
+Magic number detected Exiting.
+The current process id is 1001
+The number of neighbors are 3
+Trying to bind 16011
+Creating server
+Handling 1
+Handling 2
+The received message length is: 32
+The header message is P2PFILESHARINGPROJ
+The received message length is: 32
+The header message is P2PFILESHARINGPROJ
+Received peer ID: 1003
+The peerID is corrupt during transmission
+Received peer ID: 1007
+The peerID is corrupt during transmission
+Handling 3
+The received message length is: 32
+The header message is P2PFILESHARINGPROJ
+Received peer ID: 1004
+The peerID is corrupt during transmission
+Handling 4
+The received message length is: 32
+The header message is P2PFILESHARINGPROJ
+Received peer ID: 999999842
+The peerID is corrupt during transmission
+Handling 5
+Magic number detected Exiting.

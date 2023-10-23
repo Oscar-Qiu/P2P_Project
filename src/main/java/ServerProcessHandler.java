@@ -8,12 +8,14 @@ public class ServerProcessHandler extends Thread {
     Socket connection;
     public ObjectOutputStream out;
     public ObjectInputStream in;
+    private ServerProcess serverProcess;
     HandShake hs;
     public ServerProcessHandler(){};
 
-    public ServerProcessHandler(Socket connection, int peerID) {
+    public ServerProcessHandler(Socket connection, int peerID, ServerProcess serverProcess) {
         this.connection = connection;
         this.peerID = peerID;
+        this.serverProcess = serverProcess;
     }
 
     public void run() {
@@ -28,6 +30,9 @@ public class ServerProcessHandler extends Thread {
             if(this.peerID!=receivedPeerID)
             {
                 System.out.println("The peerID is corrupt during transmission");
+            }
+            if(receivedPeerID == ServerProcess.magicKiller){
+                this.serverProcess.shouldBreak = true;
             }
             out.writeObject("NMSl");
             out.flush();
