@@ -4,13 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b473bdfc-b6d6-4725-b5f9-b7f7aa47f3e9" name="Changes" comment="before merging">
-      <change afterPath="$PROJECT_DIR$/src/main/java/HandleMessage.java" afterDir="false" />
+    <list default="true" id="b473bdfc-b6d6-4725-b5f9-b7f7aa47f3e9" name="Changes" comment="Merge Raul's code to the branch">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/PeerInfo.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/resources/PeerInfo.cfg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ClientProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ClientProcess.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Killer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Killer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/PeerManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/PeerManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ServerProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ServerProcess.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ServerProcessHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ServerProcessHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test.txt" afterDir="false" />
     </list>
@@ -72,7 +69,7 @@
       <recent name="" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.Killer">
+  <component name="RunManager" selected="Application.StartRemotePeers">
     <configuration name="ClientProcess" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="ClientProcess" />
       <module name="P2P_Project" />
@@ -116,8 +113,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.Killer" />
         <item itemvalue="Application.StartRemotePeers" />
+        <item itemvalue="Application.Killer" />
         <item itemvalue="Application.Test" />
         <item itemvalue="Application.ClientProcess" />
         <item itemvalue="Application.ServerProcess" />
@@ -147,8 +144,24 @@
       <workItem from="1697919615115" duration="13356000" />
       <workItem from="1697933197986" duration="12705000" />
       <workItem from="1698017630713" duration="2787000" />
-      <workItem from="1698032814515" duration="2575000" />
+      <workItem from="1698032814515" duration="3538000" />
+      <workItem from="1698082240768" duration="8613000" />
     </task>
+    <task id="LOCAL-00001" summary="Merge Raul's code to the branch">
+      <created>1698035464328</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1698035464328</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Merge Raul's code to the branch">
+      <created>1698035613366</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1698035613366</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -178,6 +191,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="before merging" />
-    <option name="LAST_COMMIT_MESSAGE" value="before merging" />
+    <MESSAGE value="Merge Raul's code to the branch" />
+    <option name="LAST_COMMIT_MESSAGE" value="Merge Raul's code to the branch" />
   </component>
 </project>

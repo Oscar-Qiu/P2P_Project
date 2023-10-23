@@ -43,7 +43,7 @@ public class ServerProcessHandler extends Thread {
             String msg;
 
             // while loop to receive messages
-            /*
+
             while(true) {
                 receivedMessage = (byte[])in.readObject();
                 msgType = receivedMessage[4];                   // can place this elsewhere or not idk
@@ -80,9 +80,9 @@ public class ServerProcessHandler extends Thread {
                 }
 
                 out.writeObject(m.generateMsg(4, "Test reply message"));    // testing
+               // out.flush();
             }
 
-             */
 
             // Parse server handshake message from other peers, should uncomment later
 //            while(true) {

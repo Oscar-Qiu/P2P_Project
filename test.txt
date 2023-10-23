@@ -1,27 +1,40 @@
 The current process id is 1009
-Trying to bind 16013
+Trying to bind 16001
 Server created, waiting for peers
 Attempting to handshake peer 1001
 Handshake response message: 1001
+Sending a test message
+Peer's reply: Test reply message
 Closing client
 Attempting to handshake peer 1002
 Handshake response message: 1002
+Sending a test message
+Peer's reply: Test reply message
 Closing client
 Attempting to handshake peer 1003
 Handshake response message: 1003
+Sending a test message
+Peer's reply: Test reply message
 Closing client
 Attempting to handshake peer 1004
+Handshake response message: 1004
+Sending a test message
+Peer's reply: Test reply message
 Closing client
 Attempting to handshake peer 1005
+Handshake response message: 1005
+Sending a test message
+Peer's reply: Test reply message
 Closing client
 Attempting to handshake peer 1006
 Closing client
 Attempting to handshake peer 1007
+Handshake response message: 1007
+Sending a test message
+Peer's reply: Test reply message
 Closing client
 Attempting to handshake peer 1008
-Handshake response message: java.net.SocketException: Connection reset
+Handshake response message: 1008
+Sending a test message
+Peer's reply: Test reply message
 Closing client
-Handling 1
-The received message length is: 32
-The header message is P2PFILESHARINGPROJ
-Received peer ID: 999999842
