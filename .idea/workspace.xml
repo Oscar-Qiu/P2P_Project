@@ -5,9 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8dd0ea1d-2c5d-446c-8bda-104955293e1f" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/PeerInfo.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/resources/PeerInfo.cfg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ClientProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ClientProcess.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/HandShake.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/HandShake.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/PeerManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/PeerManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ServerProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ServerProcess.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ServerProcessHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ServerProcessHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/StartRemotePeers.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,6 +28,14 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/src/main/java/PeerManager.java" root0="FORCE_HIGHLIGHTING" />
@@ -101,13 +114,15 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
+    <configuration default="true" type="ArquillianTestNG" factoryName="" nameIsGenerated="true">
       <option name="arquillianRunConfiguration">
         <value>
           <option name="containerStateName" value="" />
         </value>
       </option>
-      <option name="TEST_OBJECT" value="class" />
+      <option name="TEST_OBJECT" value="CLASS" />
+      <properties />
+      <listeners />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -143,6 +158,7 @@
       <workItem from="1697763038552" duration="10016000" />
       <workItem from="1697805175979" duration="5377000" />
       <workItem from="1697825911313" duration="26146000" />
+      <workItem from="1697997569289" duration="22148000" />
     </task>
     <servers />
   </component>
