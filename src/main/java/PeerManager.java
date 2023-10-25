@@ -21,9 +21,8 @@ public class PeerManager {
     // Each peer should keep track of info of other peers
     // List<RemotePeerInfo> peerInfoList = new ArrayList<>();
     // Map the id to each peer
-    public Map<String,RemotePeerInfo> peerInfoMap = new HashMap<>();
-
-    public  Map<String,boolean[]> idToBitField = new HashMap<>();
+    public Map<String, RemotePeerInfo> peerInfoMap = new HashMap<>();
+    public Map<String, boolean[]> idToBitField = new HashMap<>();
 
     public ArrayList<String> peerIDs = new ArrayList<>();
     public ArrayList<String> peerAddress = new ArrayList<>();
@@ -52,6 +51,8 @@ public class PeerManager {
         catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        //
     }
 
     // Read Common.cfg
@@ -142,15 +143,13 @@ public class PeerManager {
         {
             boolean[] bitfield = new boolean[getPieceCount()];
 
-            if(peer.getValue().hasFile)
-            {
+            if(peer.getValue().hasFile) {
                 Arrays.fill(bitfield,true); // Each peer should keep track of its bitfield
             }
-            // else set to false
 
             // Need to store the local variable in the class
             String id = peer.getKey();
-            idToBitField.put(id,bitfield);
+            idToBitField.put(id, bitfield);
         }
     }
 
@@ -180,6 +179,7 @@ public class PeerManager {
             TimeUnit.SECONDS.sleep(1); // Used to delay so test messages do not overlap
         }
 
+        TimeUnit.SECONDS.sleep(5); // Testing
     }
 
     public  static void main(String[] args) throws  Exception{

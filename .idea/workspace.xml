@@ -6,13 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="8dd0ea1d-2c5d-446c-8bda-104955293e1f" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/PeerInfo.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/resources/PeerInfo.cfg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ClientProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ClientProcess.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/HandShake.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/HandShake.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/PeerManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/PeerManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ServerProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ServerProcess.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ServerProcessHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ServerProcessHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/StartRemotePeers.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -114,19 +109,6 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="ArquillianTestNG" factoryName="" nameIsGenerated="true">
-      <option name="arquillianRunConfiguration">
-        <value>
-          <option name="containerStateName" value="" />
-        </value>
-      </option>
-      <option name="TEST_OBJECT" value="CLASS" />
-      <properties />
-      <listeners />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Application.ClientProcess" />
@@ -158,7 +140,8 @@
       <workItem from="1697763038552" duration="10016000" />
       <workItem from="1697805175979" duration="5377000" />
       <workItem from="1697825911313" duration="26146000" />
-      <workItem from="1697997569289" duration="22148000" />
+      <workItem from="1697997569289" duration="29048000" />
+      <workItem from="1698092549048" duration="1190000" />
     </task>
     <servers />
   </component>
