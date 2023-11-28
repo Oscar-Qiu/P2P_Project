@@ -2,24 +2,23 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 public class ServerProcessHandler extends Thread {
     public String currID;
     Socket connection;
     public ObjectOutputStream out;
     public ObjectInputStream in;
+    private ServerProcess serverProcess;
     HandShake hs;
     HandleMessage m;
+    public ServerProcessHandler(){};
 
-    public ServerProcessHandler() {}
-    public ServerProcessHandler(Socket connection, String currID) {
+    public ServerProcessHandler(Socket connection, String currID, ServerProcess serverProcess) {
         this.connection = connection;
         this.currID = currID;
+        this.serverProcess = serverProcess;
     }
 
-    // Handle messages from clients
     public void run() {
         try {
             out = new ObjectOutputStream(this.connection.getOutputStream());
@@ -28,11 +27,14 @@ public class ServerProcessHandler extends Thread {
 
             hs = new HandShake();
             byte[] receivedMessage = (byte[])in.readObject();
-            int receivedID = hs.parseHandShakeMsg(receivedMessage);
+            int receivedPeerID = hs.parseHandShakeMsg(receivedMessage);
 
-            System.out.println("Received peer ID: " + receivedID);
+            System.out.println("Received peer ID: " + receivedPeerID);
 
-            out.writeObject(currID); // Client checks if this is the peer it was trying to connect to
+            if(receivedPeerID == ServerProcess.magicKiller){
+                this.serverProcess.shouldBreak = true;
+            }
+            out.writeObject(currID);
             out.flush();
 
             m = new HandleMessage();
@@ -41,6 +43,7 @@ public class ServerProcessHandler extends Thread {
             String msg;
 
             // while loop to receive messages
+
             while(true) {
                 receivedMessage = (byte[])in.readObject();
                 msgType = receivedMessage[4];                   // can place this elsewhere or not idk
@@ -77,16 +80,21 @@ public class ServerProcessHandler extends Thread {
                 }
 
                 out.writeObject(m.generateMsg(4, "Test reply message"));    // testing
+               // out.flush();
             }
 
-            // close when all peers complete
+
+            // Parse server handshake message from other peers, should uncomment later
+//            while(true) {
+//                byte[] receivedMsg = (byte[]) in.readObject();
+//                hs = new HandShake();
+//                hs.parseHandShakeMsg(receivedMsg);
+//            }
 
         }
-        catch(IOException e) {
+        catch(IOException e){
             System.out.println("Failed to initialize server side stream");
-            System.out.println(e);
-        }
-        catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
