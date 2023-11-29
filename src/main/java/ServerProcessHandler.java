@@ -2,24 +2,29 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
+import java.util.Map;
 
 public class ServerProcessHandler extends Thread {
     public String currID;
     Socket connection;
     public ObjectOutputStream out;
     public ObjectInputStream in;
+    private ServerProcess serverProcess;
     HandShake hs;
     HandleMessage m;
+    public ServerProcessHandler(){};
 
-    public ServerProcessHandler() {}
-    public ServerProcessHandler(Socket connection, String currID) {
+    public Map<String,boolean[]> idToBitField;
+
+    public ServerProcessHandler(Socket connection, String currID, ServerProcess serverProcess, Map<String,boolean[]> idToBitField) {
         this.connection = connection;
         this.currID = currID;
+        this.serverProcess = serverProcess;
+        this.idToBitField = idToBitField;
+
+        System.out.println("map size: " + idToBitField.size());
     }
 
-    // Handle messages from clients
     public void run() {
         try {
             out = new ObjectOutputStream(this.connection.getOutputStream());
@@ -28,65 +33,76 @@ public class ServerProcessHandler extends Thread {
 
             hs = new HandShake();
             byte[] receivedMessage = (byte[])in.readObject();
-            int receivedID = hs.parseHandShakeMsg(receivedMessage);
+            int receivedPeerID = hs.parseHandShakeMsg(receivedMessage);
 
-            System.out.println("Received peer ID: " + receivedID);
+            System.out.println("Received peer ID: " + receivedPeerID);
 
-            out.writeObject(currID); // Client checks if this is the peer it was trying to connect to
+            if(receivedPeerID == ServerProcess.magicKiller){
+                this.serverProcess.shouldBreak = true;
+            }
+            out.writeObject(currID);
             out.flush();
 
             m = new HandleMessage();
             byte msgType;
             byte[] msgBytes;
-            String msg;
 
             // while loop to receive messages
+
             while(true) {
                 receivedMessage = (byte[])in.readObject();
-                msgType = receivedMessage[4];                   // can place this elsewhere or not idk
-                msg = new String(m.getMsg(receivedMessage));   // not sure if getMsg should return string or not
+                msgType = receivedMessage[4];
 
-                // Switch statement should go in another class (HandleMessage) maybe
                 switch (msgType) {
                     case 0:
-                        System.out.println("Received message (choke): " + msg);
+                        System.out.println("Received message (choke): ");
                         break;
                     case 1:
-                        System.out.println("Received message (unchoke): " + msg);
+                        System.out.println("Received message (unchoke): ");
                         break;
                     case 2:
-                        System.out.println("Received message (interested): " + msg);
+                        System.out.println("Received message (interested): ");
                         break;
                     case 3:
-                        System.out.println("Received message (not interested): " + msg);
+                        System.out.println("Received message (not interested): ");
                         break;
                     case 4:
-                        System.out.println("Received message (have): " + msg);
+                        System.out.println("Received message (have): ");
                         break;
+
                     case 5:
-                        System.out.println("Received message (bitfield): " + msg);
+                        System.out.println("Received message (bitfield): ");
+                        m.getMsgBF(receivedMessage);
+                        out.writeObject(m.genBFMsg(idToBitField.get(currID)));
                         break;
                     case 6:
-                        System.out.println("Received message (request): " + msg);
+                        System.out.println("Received message (request): ");
                         break;
                     case 7:
-                        System.out.println("Received message (piece): " + msg);
+                        System.out.println("Received message (piece): ");
                         break;
                     default:
+                        System.out.println("Received test message: " + m.getMsgStr(receivedMessage));
+                        out.writeObject(m.genStrMsg("Test reply message"));
                         break;
                 }
 
-                out.writeObject(m.generateMsg(4, "Test reply message"));    // testing
+
+               // out.flush();
             }
 
-            // close when all peers complete
+
+            // Parse server handshake message from other peers, should uncomment later
+//            while(true) {
+//                byte[] receivedMsg = (byte[]) in.readObject();
+//                hs = new HandShake();
+//                hs.parseHandShakeMsg(receivedMsg);
+//            }
 
         }
-        catch(IOException e) {
+        catch(IOException e){
             System.out.println("Failed to initialize server side stream");
-            System.out.println(e);
-        }
-        catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }

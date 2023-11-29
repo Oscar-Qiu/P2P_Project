@@ -21,8 +21,9 @@ public class PeerManager {
     // Each peer should keep track of info of other peers
     // List<RemotePeerInfo> peerInfoList = new ArrayList<>();
     // Map the id to each peer
-    public Map<String, RemotePeerInfo> peerInfoMap = new HashMap<>();
-    public Map<String, boolean[]> idToBitField = new HashMap<>();
+    public Map<String,RemotePeerInfo> peerInfoMap = new HashMap<>();
+
+    public  Map<String,boolean[]> idToBitField = new HashMap<>();
 
     public ArrayList<String> peerIDs = new ArrayList<>();
     public ArrayList<String> peerAddress = new ArrayList<>();
@@ -51,8 +52,6 @@ public class PeerManager {
         catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-        //
     }
 
     // Read Common.cfg
@@ -141,15 +140,29 @@ public class PeerManager {
     public void initBitField() {
         for(Map.Entry<String, RemotePeerInfo> peer: peerInfoMap.entrySet())
         {
-            boolean[] bitfield = new boolean[getPieceCount()];
+            int size = getPieceCount();
 
-            if(peer.getValue().hasFile) {
+            // set the size to be able to fit a byte array later on
+            int r = size % 8;
+            if(r != 0) { size += (8 - r); }
+            else { r = 8; }
+
+            boolean[] bitfield = new boolean[size];
+
+            if(peer.getValue().hasFile)
+            {
                 Arrays.fill(bitfield,true); // Each peer should keep track of its bitfield
+            }
+
+            // pad excess bits to zero
+            for(int i = 0; i < (8 - r); i++)
+            {
+                bitfield[size - 1 - i] = false;
             }
 
             // Need to store the local variable in the class
             String id = peer.getKey();
-            idToBitField.put(id, bitfield);
+            idToBitField.put(id,bitfield);
         }
     }
 
@@ -160,7 +173,8 @@ public class PeerManager {
         String peerAddress = currPeer.peerAddress;
         String port = currPeer.peerPort;
 
-        s = new ServerProcess(port, currProcessID);
+        s = new ServerProcess(port, currProcessID, idToBitField);
+
         TimeUnit.SECONDS.sleep(1); // Used to delay so test messages do not overlap
 
         // Find which peers to send a connection to (only connect to prev peers in PeerInfo.cfg)
@@ -173,13 +187,12 @@ public class PeerManager {
                 i = peerIDs.size();
             }
             else {
-                c = new ClientProcess(peerInfoMap.get(p).peerAddress, peerInfoMap.get(p).peerPort, currProcessID, p);
+                c = new ClientProcess(peerInfoMap.get(p).peerAddress, peerInfoMap.get(p).peerPort, currProcessID, p, idToBitField);
             }
 
             TimeUnit.SECONDS.sleep(1); // Used to delay so test messages do not overlap
         }
 
-        TimeUnit.SECONDS.sleep(5); // Testing
     }
 
     public  static void main(String[] args) throws  Exception{
