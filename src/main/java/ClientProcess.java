@@ -16,7 +16,7 @@ public class ClientProcess extends Thread {
     HandShake hs;
     HandleMessage m;
     public String currID;
-    public int peerID;
+    public String peerID;
     public int port;
     String peerAddress;
     PeerManager p;
@@ -29,7 +29,7 @@ public class ClientProcess extends Thread {
 
     public ClientProcess(String peerAddress, String port, String currID, String peerID, Map<String,boolean[]> idToBitField) {
         this.currID = currID;
-        this.peerID = Integer.parseInt(peerID);
+        this.peerID = peerID;
         this.port = Integer.parseInt(port);
         this.peerAddress = peerAddress;
 
@@ -61,6 +61,7 @@ public class ClientProcess extends Thread {
 
             m = new HandleMessage();
             byte[] receivedMessage;
+            boolean interested;
 
             // Test message
             System.out.println("Sending a test message");
@@ -79,11 +80,14 @@ public class ClientProcess extends Thread {
 
             receivedMessage = (byte[]) in.readObject();
             System.out.println("Peer's reply: ");
-            m.getMsgBF(receivedMessage);
+            interested = m.handleBFMsg(receivedMessage, idToBitField, currID, peerID);
 
-            Arrays.fill(idToBitField.get(currID), true); // testing
-
-
+            if(interested) {
+                out.writeObject(m.genIntMsg());
+            }
+            else {
+                out.writeObject(m.genNotIntMsg());
+            }
 
 
 
@@ -126,7 +130,7 @@ public class ClientProcess extends Thread {
             String s = (String) in.readObject();
             System.out.println(s);
 
-            if (peerID != Integer.parseInt(s)) {
+            if (peerID != s) {
                 return false;
             }
         } catch (IOException e) {
@@ -137,6 +141,7 @@ public class ClientProcess extends Thread {
 
         return true;
     }
+
 
     public static void main(String[] args) throws Exception {
         ClientProcess c = new ClientProcess("localhost", "5000", "1000", "1001", new HashMap<>());

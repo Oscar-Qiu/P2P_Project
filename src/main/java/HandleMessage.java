@@ -50,6 +50,28 @@ public class HandleMessage {
         return byteStream.toByteArray();
     }
 
+    // Generate interested message
+    public byte[] genIntMsg() throws IOException {
+        byteStream = new ByteArrayOutputStream();
+
+        byte[] msgLength = {0, 0, 0, 0}; // length is zero
+        byteStream.write(msgLength);
+        byteStream.write((byte)2);
+
+        return byteStream.toByteArray();
+    }
+
+    // Generate not interested message
+    public byte[] genNotIntMsg() throws IOException {
+        byteStream = new ByteArrayOutputStream();
+
+        byte[] msgLength = {0, 0, 0, 0}; // length is zero
+        byteStream.write(msgLength);
+        byteStream.write((byte)3);
+
+        return byteStream.toByteArray();
+    }
+
     // Removes the header portion of a received string message
     public String getMsgStr(byte[] msg) throws IOException{
         if(msg.length < 5) {
@@ -63,8 +85,8 @@ public class HandleMessage {
         return new String(Arrays.copyOfRange(msg,5,5 + msgLength));
     }
 
-    // Removes the header portion of a received bitField message
-    public byte[] getMsgBF(byte[] msg) throws IOException{
+    // Updates the bifField map given a bitField message and returns a bool if the peer has a piece the current does not
+    public boolean handleBFMsg(byte[] msg, Map<String,boolean[]> idToBitField, String currID, String peerID) throws IOException{
         if(msg.length < 5) {
             throw new IOException("Missing message header information");
         }
@@ -73,14 +95,34 @@ public class HandleMessage {
         byte[] msgLengthBytes = Arrays.copyOfRange(msg,0,4);
         int msgLength = ByteBuffer.wrap(msgLengthBytes).getInt();
 
-        byte[] bf = Arrays.copyOfRange(msg,5,5 + msgLength);
+        byte[] bitField = Arrays.copyOfRange(msg,5,5 + msgLength);
 
         // test message prints whole byte array
         System.out.print("Received bitField (as bytes): ");
-        for(int i = 0; i < bf.length; i++){
-            System.out.print((bf[0] & 0xFF) + " ");
+        for(int i = 0; i < bitField.length; i++){
+            System.out.print((bitField[0] & 0xFF) + " ");
         }
 
-        return bf;
+        System.out.println("");
+
+        BitSet b = BitSet.valueOf(bitField);
+
+        // update the bit Field of the peer
+        for(int i = 0; i < idToBitField.get(peerID).length; i++) {
+            idToBitField.get(peerID)[i] = b.get(i);
+        }
+
+        boolean interested = false;
+
+        // checks to see if peer has any needed pieces
+        for(int i = 0; i < idToBitField.get(currID).length; i++) {
+            if(!idToBitField.get(currID)[i] && idToBitField.get(peerID)[i]){
+                interested = true;
+                i = idToBitField.get(currID).length;
+            }
+        }
+
+        return interested;
     }
+
 }

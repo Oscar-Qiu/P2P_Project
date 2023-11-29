@@ -6,12 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="8dd0ea1d-2c5d-446c-8bda-104955293e1f" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/StartRemotePeers.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ClientProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ClientProcess.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/HandShake.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/HandShake.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/HandleMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/HandleMessage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/PeerManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/PeerManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ServerProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ServerProcess.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ServerProcessHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ServerProcessHandler.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

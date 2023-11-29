@@ -6,6 +6,7 @@ import java.util.Map;
 
 public class ServerProcessHandler extends Thread {
     public String currID;
+    public String peerID;
     Socket connection;
     public ObjectOutputStream out;
     public ObjectInputStream in;
@@ -21,8 +22,7 @@ public class ServerProcessHandler extends Thread {
         this.currID = currID;
         this.serverProcess = serverProcess;
         this.idToBitField = idToBitField;
-
-        System.out.println("map size: " + idToBitField.size());
+        peerID = "";
     }
 
     public void run() {
@@ -37,6 +37,8 @@ public class ServerProcessHandler extends Thread {
 
             System.out.println("Received peer ID: " + receivedPeerID);
 
+            peerID = String.valueOf(receivedPeerID);
+
             if(receivedPeerID == ServerProcess.magicKiller){
                 this.serverProcess.shouldBreak = true;
             }
@@ -45,7 +47,7 @@ public class ServerProcessHandler extends Thread {
 
             m = new HandleMessage();
             byte msgType;
-            byte[] msgBytes;
+            boolean interested;
 
             // while loop to receive messages
 
@@ -72,8 +74,11 @@ public class ServerProcessHandler extends Thread {
 
                     case 5:
                         System.out.println("Received message (bitfield): ");
-                        m.getMsgBF(receivedMessage);
+
+                        // update bit map of peers & sees if it is interested with it
+                        interested = m.handleBFMsg(receivedMessage, idToBitField, currID, peerID);
                         out.writeObject(m.genBFMsg(idToBitField.get(currID)));
+
                         break;
                     case 6:
                         System.out.println("Received message (request): ");
