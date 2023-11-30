@@ -1,11 +1,8 @@
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.HashMap;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.util.BitSet;
 
 
@@ -72,6 +69,34 @@ public class HandleMessage {
         return byteStream.toByteArray();
     }
 
+    // Generate not interested message
+    public byte[] genPieceMsg(int pieceIndex, String currID) throws IOException {
+        byteStream = new ByteArrayOutputStream();
+
+        int pieceSize = 16384; // should change to actual size
+        String fileName = "thefile";
+
+        byte[] buffer = new byte[pieceSize];
+        int byteIndex = pieceIndex * pieceSize;
+
+        // read from file
+        RandomAccessFile file = new RandomAccessFile("../../../peer_" + currID + "/" + fileName, "rw");
+        file.seek(byteIndex);
+        int read = file.read(buffer); // # of bytes actually read
+        file.close();
+
+        byte[] data = Arrays.copyOfRange(buffer, 0, read); // only send bits actually read
+        byte[] index = ByteBuffer.allocate(4).putInt(pieceIndex).array(); // index of piece
+        byte[] msgLength = ByteBuffer.allocate(4).putInt(data.length + index.length).array();
+
+        byteStream.write(msgLength);
+        byteStream.write((byte)7);
+        byteStream.write(index);
+        byteStream.write(data);
+
+        return byteStream.toByteArray();
+    }
+
     // Removes the header portion of a received string message
     public String getMsgStr(byte[] msg) throws IOException{
         if(msg.length < 5) {
@@ -123,6 +148,30 @@ public class HandleMessage {
         }
 
         return interested;
+    }
+
+    // write to the peer file the obtained data
+    public void handlePiece(byte[] msg, String currID) throws IOException {
+
+        int pieceSize = 16384; // should change to actual size
+        String fileName = "thefile";
+
+        // extract header information & data payload
+        byte[] msgLengthBytes = Arrays.copyOfRange(msg,0,4);
+        int msgLength = ByteBuffer.wrap(msgLengthBytes).getInt();
+
+        byte[] pieceIndexBytes = Arrays.copyOfRange(msg,5,9);
+        int pieceIndex = ByteBuffer.wrap(pieceIndexBytes).getInt();
+
+        int byteIndex = pieceIndex * pieceSize;
+
+        byte[] data = Arrays.copyOfRange(msg,9,5 + (msgLength - 4)); // msgLength - 4 to exclude the 4 byte piece index
+
+        // write to file
+        RandomAccessFile file = new RandomAccessFile("../../../peer_" + currID + "/" + fileName, "rw");
+        file.seek(byteIndex);
+        file.write(data);
+        file.close();
     }
 
 }

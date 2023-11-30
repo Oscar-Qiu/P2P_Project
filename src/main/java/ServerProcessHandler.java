@@ -64,6 +64,12 @@ public class ServerProcessHandler extends Thread {
                         break;
                     case 2:
                         System.out.println("Received message (interested): ");
+
+                        // testing read & sending file
+                        System.out.println("Sending part of file");
+                        out.writeObject(m.genPieceMsg(1, currID));
+
+
                         break;
                     case 3:
                         System.out.println("Received message (not interested): ");
@@ -93,16 +99,8 @@ public class ServerProcessHandler extends Thread {
                 }
 
 
-               // out.flush();
             }
 
-
-            // Parse server handshake message from other peers, should uncomment later
-//            while(true) {
-//                byte[] receivedMsg = (byte[]) in.readObject();
-//                hs = new HandShake();
-//                hs.parseHandShakeMsg(receivedMsg);
-//            }
 
         }
         catch(IOException e){

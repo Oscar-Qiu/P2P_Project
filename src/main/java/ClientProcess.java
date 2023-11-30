@@ -89,7 +89,9 @@ public class ClientProcess extends Thread {
                 out.writeObject(m.genNotIntMsg());
             }
 
-
+            // testing writing file
+            receivedMessage = (byte[]) in.readObject();
+            m.handlePiece(receivedMessage, currID);
 
 
 
@@ -130,12 +132,10 @@ public class ClientProcess extends Thread {
             String s = (String) in.readObject();
             System.out.println(s);
 
-            if (peerID != s) {
+            if (!s.equals(peerID)) {
                 return false;
             }
-        } catch (IOException e) {
-            System.out.println(e);
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             System.out.println(e);
         }
 

@@ -1,6 +1,4 @@
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -44,6 +42,13 @@ public class PeerManager {
 
         // Set all the bits to 0 if the hasField is 0, otherwise set to true
         initBitField();
+
+        // create a dummy file if the peer does not have the file
+        try {
+            createFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         // Start TCP connection to all peers that start before it
         try {
@@ -163,6 +168,18 @@ public class PeerManager {
             // Need to store the local variable in the class
             String id = peer.getKey();
             idToBitField.put(id,bitfield);
+        }
+    }
+
+    // creates a junk file of the appropriate size if the peer does not have the file
+    public void createFile() throws IOException, IOException {
+        if(!peerInfoMap.get(currProcessID).hasFile) {
+            File file = new File("../../../peer_" + currProcessID + "/" + FileName);
+            file.createNewFile();
+
+            RandomAccessFile raf = new RandomAccessFile(file, "rw");
+            raf.setLength(FileSize);
+            raf.close();
         }
     }
 
