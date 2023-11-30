@@ -1,0 +1,16 @@
+Thu Nov 30 18:36:01 EST 2023 : Peer 1003 attemps a connection to Peer 1001.
+
+Thu Nov 30 18:36:01 EST 2023 : Peer 1003 is connected succesfully to 1001.
+
+Thu Nov 30 18:36:01 EST 2023 : Peer 1003 received the 'not interested' message from Peer 1001.
+
+Thu Nov 30 18:36:01 EST 2023 : Peer 1003 has downloaded the complete file.
+
+Thu Nov 30 18:36:02 EST 2023 : Peer 1003 attemps a connection to Peer 1002.
+
+Thu Nov 30 18:36:02 EST 2023 : Peer 1003 is connected succesfully to 1002.
+
+Thu Nov 30 18:36:02 EST 2023 : Peer 1003 received the 'not interested' message from Peer 1002.
+
+Thu Nov 30 18:36:02 EST 2023 : Peer 1003 has downloaded the complete file.
+

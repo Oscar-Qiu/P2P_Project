@@ -1,18 +1,26 @@
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.HashMap;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.util.BitSet;
 
 
 public class HandleMessage {
     private ByteArrayOutputStream byteStream;
+    public String currID;
+    public String peerID;
+    public int pieceSize;
+    public String fileName;
 
     public HandleMessage() {}
+
+    public HandleMessage(String currID, String peerID, int pieceSize, String fileName) {
+        this.currID = currID;
+        this.peerID = peerID;
+        this.pieceSize = pieceSize;
+        this.fileName = fileName;
+    }
 
     // Generate a message string given a string (used for testing, message type is set as 8)
     public byte[] genStrMsg(String msg) throws IOException {
@@ -33,10 +41,17 @@ public class HandleMessage {
         byteStream = new ByteArrayOutputStream();
 
         // create the byte array from the bitField
-        byte[] msgBytes = new byte[bitField.length / 8];
+        int size = bitField.length / 8;
+        if(bitField.length % 8 != 0) { size++; }
+
+        // "increase" the size of the bitfield to fit a byte
+        boolean[] bf = new boolean[bitField.length + (8 - (bitField.length % 8))];
+        System.arraycopy(bitField, 0, bf, 0, bitField.length);
+
+        byte[] msgBytes = new byte[size];
         for (int entry = 0; entry < msgBytes.length; entry++) {
             for (int bit = 0; bit < 8; bit++) {
-                if (bitField[entry * 8 + bit]) {
+                if (bf[entry * 8 + bit]) {
                     msgBytes[entry] |= (128 >> bit);
                 }
             }
@@ -49,31 +64,69 @@ public class HandleMessage {
 
         return byteStream.toByteArray();
     }
-    public byte[] genIMsg() throws IOException{
+
+    // Generate interested message
+    public byte[] genIntMsg() throws IOException {
         byteStream = new ByteArrayOutputStream();
-        
-        // Write the header
-        byteStream.write((byte)4);
+
+        byte[] msgLength = {0, 0, 0, 0}; // length is zero
+        byteStream.write(msgLength);
         byteStream.write((byte)2);
 
         return byteStream.toByteArray();
-
-
     }
 
-    public byte[] genNIMsg() throws IOException{
+    // Generate not interested message
+    public byte[] genNotIntMsg() throws IOException {
         byteStream = new ByteArrayOutputStream();
-        
-        // Write the header
-        byteStream.write((byte)4);
+
+        byte[] msgLength = {0, 0, 0, 0}; // length is zero
+        byteStream.write(msgLength);
         byteStream.write((byte)3);
 
         return byteStream.toByteArray();
-
-
     }
 
-    // Removes the header portion of a received string message
+    // Generate a piece message of the given piece index
+    public byte[] genReqMsg(int pieceIndex) throws IOException {
+        byteStream = new ByteArrayOutputStream();
+
+        byte[] msgBytes = ByteBuffer.allocate(4).putInt(pieceIndex).array();
+        byte[] msgLength = ByteBuffer.allocate(4).putInt(msgBytes.length).array();
+
+        byteStream.write(msgLength);
+        byteStream.write((byte)6);
+        byteStream.write(msgBytes);
+
+        return byteStream.toByteArray();
+    }
+
+    // Generate piece message, reads the given piece index of the file
+    public byte[] genPieceMsg(int pieceIndex) throws IOException {
+        byteStream = new ByteArrayOutputStream();
+
+        byte[] buffer = new byte[pieceSize];
+        int byteIndex = pieceIndex * pieceSize;
+
+        // read from file
+        RandomAccessFile file = new RandomAccessFile("../../../peer_" + currID + "/" + fileName, "rw");
+        file.seek(byteIndex);
+        int read = file.read(buffer); // # of bytes actually read
+        file.close();
+
+        byte[] data = Arrays.copyOfRange(buffer, 0, read);           // only send bits actually read
+        byte[] index = ByteBuffer.allocate(4).putInt(pieceIndex).array(); // index of piece
+        byte[] msgLength = ByteBuffer.allocate(4).putInt(data.length + index.length).array();
+
+        byteStream.write(msgLength);
+        byteStream.write((byte)7);
+        byteStream.write(index);
+        byteStream.write(data);
+
+        return byteStream.toByteArray();
+    }
+
+    // Removes the header portion of a received string message and return the string
     public String getMsgStr(byte[] msg) throws IOException{
         if(msg.length < 5) {
             throw new IOException("Missing message header information");
@@ -86,25 +139,81 @@ public class HandleMessage {
         return new String(Arrays.copyOfRange(msg,5,5 + msgLength));
     }
 
-    // Removes the header portion of a received bitField message
-    public byte[] getMsgBF(byte[] msg) throws IOException{
+    // Updates the bifField map given a bitField message and returns a bool if the peer has a needed piece
+    public boolean handleBFMsg(byte[] msg, Map<String,boolean[]> idToBitField) throws IOException{
         if(msg.length < 5) {
             throw new IOException("Missing message header information");
         }
 
-        // Extract header length and return actual message portion
+        // Extract header length and bitField
         byte[] msgLengthBytes = Arrays.copyOfRange(msg,0,4);
         int msgLength = ByteBuffer.wrap(msgLengthBytes).getInt();
 
-        byte[] bf = Arrays.copyOfRange(msg,5,5 + msgLength);
+        byte[] bitField = Arrays.copyOfRange(msg,5,5 + msgLength);
 
         // test message prints whole byte array
-        // System.out.print("Received bitField (as bytes): ");
-        /*for(int i = 0; i < bf.length; i++){
-            System.out.print((bf[i] & 0xFF) + " ");
+        System.out.print("Received bitField (as signed bytes): ");
+        for(int i = 0; i < bitField.length; i++){
+            System.out.print((bitField[0]) + " ");
         }
-        System.out.print("\n");*/
 
-        return bf;
+        System.out.println("");
+
+        // update the bit Field of the peer
+        BitSet b = BitSet.valueOf(bitField);
+
+        for(int i = 0; i < idToBitField.get(peerID).length / 8; i++) {
+            idToBitField.get(peerID)[i] = b.get(i);
+        }
+
+        // checks to see if peer has any needed pieces
+        boolean interested = false;
+
+        for(int i = 0; i < idToBitField.get(currID).length; i++) {
+            if(!idToBitField.get(currID)[i] && idToBitField.get(peerID)[i]) {
+                interested = true;
+                i = idToBitField.get(currID).length;
+            }
+        }
+
+        return interested;
     }
+
+    // find the piece index of a request message
+    public int handleRequest(byte[] msg) {
+
+        // extract header information & data payload
+        byte[] msgLengthBytes = Arrays.copyOfRange(msg,0,4);
+        int msgLength = ByteBuffer.wrap(msgLengthBytes).getInt();
+
+        byte[] pieceIndexBytes = Arrays.copyOfRange(msg,5,5 + msgLength);
+        return ByteBuffer.wrap(pieceIndexBytes).getInt();
+    }
+
+    // write to the peer file the obtained data, also update bitField
+    public void handlePiece(byte[] msg, Map<String,boolean[]> idToBitField) throws IOException {
+
+        // extract header information & data payload
+        byte[] msgLengthBytes = Arrays.copyOfRange(msg,0,4);
+        int msgLength = ByteBuffer.wrap(msgLengthBytes).getInt();
+
+        byte[] pieceIndexBytes = Arrays.copyOfRange(msg,5,9);
+        int pieceIndex = ByteBuffer.wrap(pieceIndexBytes).getInt();
+
+        int byteIndex = pieceIndex * pieceSize;
+
+        byte[] data = Arrays.copyOfRange(msg,9, 9 + (msgLength - 4)); // msgLength - 4 to exclude the 4 byte piece index
+
+        // write to file
+        RandomAccessFile file = new RandomAccessFile("../../../peer_" + currID + "/" + fileName, "rw");
+        file.seek(byteIndex);
+        file.write(data);
+        file.close();
+
+        System.out.println("got piece: " + pieceIndex);
+
+        // update bitField
+        idToBitField.get(currID)[pieceIndex] = true;
+    }
+
 }

@@ -1,6 +1,4 @@
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -19,14 +17,10 @@ public class PeerManager {
     public String currProcessID;
 
     // Each peer should keep track of info of other peers
-    // List<RemotePeerInfo> peerInfoList = new ArrayList<>();
     // Map the id to each peer
-    public Map<String,RemotePeerInfo> peerInfoMap = new HashMap<>();
-
-    public  Map<String,boolean[]> idToBitField = new HashMap<>();
-
-    public ArrayList<String> peerIDs = new ArrayList<>();
-    public ArrayList<String> peerAddress = new ArrayList<>();
+    public Map<String, RemotePeerInfo> peerInfoMap = new HashMap<>(); // <peerID, peerInfo (class)>
+    public  Map<String, boolean[]> idToBitField = new HashMap<>();    // <peerID, bitField (bool[])>
+    public ArrayList<String> peerIDs = new ArrayList<>();             // list of peer id's in the order in peerInfo.cfg
 
     public ClientProcess c;
     public ServerProcess s;
@@ -34,16 +28,23 @@ public class PeerManager {
     public PeerManager() {}
     public PeerManager(String id) {
         currProcessID = id;
-        System.out.println("The current process id is "+ currProcessID);
+        System.out.println("The current process id is "+ currProcessID); // test message
     }
 
-    // Read config files, set bit field, and start TCP connections
+    // Read config files, set bit field, generate a junk file if the peer does not have a file, and start TCP connections
     public void init() {
         readCommonCFG();
         readPeerInfo();
 
         // Set all the bits to 0 if the hasField is 0, otherwise set to true
         initBitField();
+        Logger.startLogger(currProcessID);
+        // create a dummy file if the peer does not have the file
+        try {
+            createFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         // Start TCP connection to all peers that start before it
         try {
@@ -55,7 +56,7 @@ public class PeerManager {
     }
 
     // Read Common.cfg
-    public void readCommonCFG(){
+    public void readCommonCFG() {
         String line;
 
         try {
@@ -104,19 +105,12 @@ public class PeerManager {
 
         try {
             BufferedReader in = new BufferedReader(new FileReader("../../../resources/PeerInfo.cfg"));
+
             while((st = in.readLine()) != null) {
                 String[] tokens = st.split("\\s+");
 
-                //System.out.println("tokens begin ----");
-                //for (int x=0; x<tokens.length; x++) {
-                //    System.out.println(tokens[x]);
-                //}
-                //System.out.println("tokens end ----");
-
                 peerInfoMap.put(tokens[0], new RemotePeerInfo(tokens[0], tokens[1], tokens[2], tokens[3].equals("1")));
-
                 peerIDs.add(tokens[0]);
-                peerAddress.add(tokens[1]);
             }
             in.close();
         }
@@ -141,23 +135,12 @@ public class PeerManager {
         for(Map.Entry<String, RemotePeerInfo> peer: peerInfoMap.entrySet())
         {
             int size = getPieceCount();
-
-            // set the size to be able to fit a byte array later on
-            int r = size % 8;
-            if(r != 0) { size += (8 - r); }
-            else { r = 8; }
-
             boolean[] bitfield = new boolean[size];
 
+            // setting bit field
             if(peer.getValue().hasFile)
             {
-                Arrays.fill(bitfield,true); // Each peer should keep track of its bitfield
-            }
-
-            // pad excess bits to zero
-            for(int i = 0; i < (8 - r); i++)
-            {
-                bitfield[size - 1 - i] = false;
+                Arrays.fill(bitfield,true);
             }
 
             // Need to store the local variable in the class
@@ -166,14 +149,26 @@ public class PeerManager {
         }
     }
 
+    // creates a junk file of the appropriate size if the peer does not have the file
+    public void createFile() throws IOException, IOException {
+        if(!peerInfoMap.get(currProcessID).hasFile) {
+            File file = new File("../../../peer_" + currProcessID + "/" + FileName);
+            file.createNewFile();
+
+            RandomAccessFile raf = new RandomAccessFile(file, "rw");
+            raf.setLength(FileSize);
+            raf.close();
+        }
+    }
+
     // Initiate server and TCP connections to all peers before it
     // Throws Interrupted Exception is for sleep call
     public void startTCPConnection() throws InterruptedException {
         RemotePeerInfo currPeer = peerInfoMap.get(currProcessID);
-        String peerAddress = currPeer.peerAddress;
         String port = currPeer.peerPort;
 
-        s = new ServerProcess(port, currProcessID, idToBitField);
+        // create server for peer
+        s = new ServerProcess(port, currProcessID, idToBitField, PieceSize, FileName);
 
         TimeUnit.SECONDS.sleep(1); // Used to delay so test messages do not overlap
 
@@ -183,19 +178,19 @@ public class PeerManager {
         {
             p = peerIDs.get(i);
 
+            // create client for peer (if applicable)
             if(p.equals(currProcessID)) {
                 i = peerIDs.size();
             }
             else {
-                c = new ClientProcess(peerInfoMap.get(p).peerAddress, peerInfoMap.get(p).peerPort, currProcessID, p, idToBitField);
+                c = new ClientProcess(peerInfoMap.get(p).peerAddress, peerInfoMap.get(p).peerPort, currProcessID, p, idToBitField, PieceSize, FileName);
             }
 
             TimeUnit.SECONDS.sleep(1); // Used to delay so test messages do not overlap
         }
-
     }
 
-    public  static void main(String[] args) throws  Exception{
+    public  static void main(String[] args) throws  Exception {
 //        Process serverProcess = Runtime.getRuntime().exec("java ServerProcess.java"); // 2h nonblocking
 //        Thread.sleep(2000);
         Process clientProcess = Runtime.getRuntime().exec("java ClientProcess.java"); // 3h  nonblocking
