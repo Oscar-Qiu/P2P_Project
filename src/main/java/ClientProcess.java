@@ -4,6 +4,10 @@ import java.io.ObjectOutputStream;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ClientProcess extends Thread {
     public Socket requestSocket;
@@ -11,20 +15,26 @@ public class ClientProcess extends Thread {
     public ObjectInputStream in;
     HandShake hs;
     HandleMessage m;
-    public int currID;
+    public String currID;
     public int peerID;
     public int port;
     String peerAddress;
     PeerManager p;
 
+    public Map<String,boolean[]> idToBitField;
+    public boolean[] bitField;
+
     public ClientProcess() {
     }
 
-    public ClientProcess(String peerAddress, String port, String currID, String peerID) {
-        this.currID = Integer.parseInt(currID);
+    public ClientProcess(String peerAddress, String port, String currID, String peerID, Map<String,boolean[]> idToBitField) {
+        this.currID = currID;
         this.peerID = Integer.parseInt(peerID);
         this.port = Integer.parseInt(port);
         this.peerAddress = peerAddress;
+
+        this.idToBitField = idToBitField;
+
         start();
     }
 
@@ -47,21 +57,35 @@ public class ClientProcess extends Thread {
                 System.out.println("Connected to wrong peer");
 
                 // exit and close
-
             }
 
-            // Test message
-
             m = new HandleMessage();
+            byte[] receivedMessage;
+
+            // Test message
             System.out.println("Sending a test message");
-            out.writeObject(m.generateMsg(5, "1001"));
+            out.writeObject(m.genStrMsg("Client Test Message"));
             // out.flush();
 
-            byte[] receivedMessage;
-            String msg;
             receivedMessage = (byte[]) in.readObject();
-            msg = new String(m.getMsg(receivedMessage)); // not sure if  getMsg should return string or not
-            System.out.println("Peer's reply: " + msg);
+            // System.out.println("Peer's reply: " + m.getMsgStr(receivedMessage));
+
+
+            // sending initial bitField message
+            System.out.println("Sending a bitField message");
+            out.writeObject(m.genBFMsg(idToBitField.get(currID)));
+            // out.flush();
+
+
+            receivedMessage = (byte[]) in.readObject();
+            // System.out.println("Peer's reply: " + m.getMsgBF(receivedMessage));
+            
+            Arrays.fill(idToBitField.get(currID), true); // testing
+
+
+
+
+
 
 
         } catch (ConnectException e) {
@@ -90,7 +114,7 @@ public class ClientProcess extends Thread {
     // Send handshake message and return false if server rejects or connected to wrong peer
     public boolean sendHandShakeMsg() throws IOException {
         hs = new HandShake();
-        byte[] messageToSend = hs.generateHandShakeMsg(currID);
+        byte[] messageToSend = hs.generateHandShakeMsg(Integer.parseInt(currID));
 
         try {
             out.writeObject(messageToSend);
@@ -114,6 +138,6 @@ public class ClientProcess extends Thread {
     }
 
     public static void main(String[] args) throws Exception {
-        ClientProcess c = new ClientProcess("localhost", "5000", "1000", "1001");
+        ClientProcess c = new ClientProcess("localhost", "5000", "1000", "1001", new HashMap<>());
     }
 }

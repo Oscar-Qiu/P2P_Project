@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.Map;
 
 public class ServerProcess extends Thread {
     public ServerSocket listener;
@@ -8,11 +9,14 @@ public class ServerProcess extends Thread {
     public static int magicKiller = 999999842;
     public String currID;
 
-    public ServerProcess(String port, String currID)
+    public Map<String,boolean[]> idToBitField;
+
+    public ServerProcess(String port, String currID, Map<String,boolean[]> idToBitField)
     {
         System.out.println("Trying to bind " + port);
         this.port = Integer.parseInt(port);
         this.currID = currID;
+        this.idToBitField = idToBitField;
         start();
     }
 
@@ -26,7 +30,7 @@ public class ServerProcess extends Thread {
             while(true)
             {
                 numAccept += 1;
-                new ServerProcessHandler(listener.accept(), currID, this).start();
+                new ServerProcessHandler(listener.accept(), currID, this, idToBitField).start();
                 System.out.println("Handling " + numAccept);
 //                if(numAccept > 10){
 //                    break;

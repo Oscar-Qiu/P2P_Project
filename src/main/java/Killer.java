@@ -1,6 +1,8 @@
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Killer {
 
@@ -15,7 +17,7 @@ public class Killer {
                 String peerAddress = peerManager.peerAddress;
                 String port = peerManager.peerPort;
                 int id = ServerProcess.magicKiller;
-                ClientProcess clientProcess = new ClientProcess(peerAddress, port, String.valueOf(id),peerManager.peerId);
+                ClientProcess clientProcess = new ClientProcess(peerAddress, port, String.valueOf(id),peerManager.peerId, new HashMap<>());
                 clientProcess.sendHandShakeMsg();
             }
             catch(Exception e){

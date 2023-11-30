@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Map;
 
 public class ServerProcessHandler extends Thread {
     public String currID;
@@ -13,10 +14,15 @@ public class ServerProcessHandler extends Thread {
     HandleMessage m;
     public ServerProcessHandler(){};
 
-    public ServerProcessHandler(Socket connection, String currID, ServerProcess serverProcess) {
+    public Map<String,boolean[]> idToBitField;
+
+    public ServerProcessHandler(Socket connection, String currID, ServerProcess serverProcess, Map<String,boolean[]> idToBitField) {
         this.connection = connection;
         this.currID = currID;
         this.serverProcess = serverProcess;
+        this.idToBitField = idToBitField;
+
+        System.out.println("map size: " + idToBitField.size());
     }
 
     public void run() {
@@ -40,46 +46,58 @@ public class ServerProcessHandler extends Thread {
             m = new HandleMessage();
             byte msgType;
             byte[] msgBytes;
-            String msg;
 
             // while loop to receive messages
 
             while(true) {
                 receivedMessage = (byte[])in.readObject();
-                msgType = receivedMessage[4];                   // can place this elsewhere or not idk
-                msg = new String(m.getMsg(receivedMessage));   // not sure if getMsg should return string or not
+                msgType = receivedMessage[4];
 
-                // Switch statement should go in another class (HandleMessage) maybe
                 switch (msgType) {
                     case 0:
-                        System.out.println("Received message (choke): " + msg);
+                        System.out.println("Received message (choke): ");
                         break;
                     case 1:
-                        System.out.println("Received message (unchoke): " + msg);
+                        System.out.println("Received message (unchoke): ");
                         break;
                     case 2:
-                        System.out.println("Received message (interested): " + msg);
+                        System.out.println("Received message (interested): ");
                         break;
                     case 3:
-                        System.out.println("Received message (not interested): " + msg);
+                        System.out.println("Received message (not interested): ");
                         break;
                     case 4:
-                        System.out.println("Received message (have): " + msg);
+                        System.out.println("Received message (have): ");
                         break;
+
                     case 5:
-                        System.out.println("Received message (bitfield): " + msg);
+                        byte[] bf = m.getMsgBF(receivedMessage);
+                        System.out.println("Received message (bitfield): ");
+                        out.writeObject(m.genBFMsg(idToBitField.get(currID)));
+                        for(int i = 0; i < bf.length; i++){
+                            System.out.print((bf[i] & 0xFF) + " ");
+                        }
+                        System.out.print("\n");
+                        if (areAllBytesOnes(bf)) {
+                            out.writeObject(m.genIMsg());
+                        } else {
+                            out.writeObject(m.genNIMsg());
+                        System.out.print("\n");
                         break;
+                        }
                     case 6:
-                        System.out.println("Received message (request): " + msg);
+                        System.out.println("Received message (request): ");
                         break;
                     case 7:
-                        System.out.println("Received message (piece): " + msg);
+                        System.out.println("Received message (piece): ");
                         break;
                     default:
+                        System.out.println("Received test message: " + m.getMsgStr(receivedMessage));
+                        out.writeObject(m.genStrMsg("Test reply message pepepepepepe"));
                         break;
                 }
 
-                out.writeObject(m.generateMsg(4, "Test reply message"));    // testing
+
                // out.flush();
             }
 
@@ -97,5 +115,18 @@ public class ServerProcessHandler extends Thread {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+
+
     }
+        private static boolean areAllBytesOnes(byte[] byteArray) {
+            for (int i = 0; i < byteArray.length - 1; i++) {
+                if ((byteArray[i] & 0xFF) != 255) {
+                    return false;
+                }
+            }
+        return true;
+    }
+
+
+
 }
