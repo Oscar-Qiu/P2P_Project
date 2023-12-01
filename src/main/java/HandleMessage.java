@@ -1,9 +1,6 @@
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.BitSet;
+import java.util.*;
 
 
 public class HandleMessage {
@@ -101,6 +98,20 @@ public class HandleMessage {
         return byteStream.toByteArray();
     }
 
+    // Generate have message
+    public byte[] genHaveMsg(int pieceIndex) throws IOException {
+        byteStream = new ByteArrayOutputStream();
+
+        byte[] index = ByteBuffer.allocate(4).putInt(pieceIndex).array(); // index of piece
+        byte[] msgLength = ByteBuffer.allocate(4).putInt(index.length).array();
+
+        byteStream.write(msgLength);
+        byteStream.write((byte)4);
+        byteStream.write(index);
+
+        return byteStream.toByteArray();
+    }
+
     // Generate piece message, reads the given piece index of the file
     public byte[] genPieceMsg(int pieceIndex) throws IOException {
         byteStream = new ByteArrayOutputStream();
@@ -150,14 +161,6 @@ public class HandleMessage {
         int msgLength = ByteBuffer.wrap(msgLengthBytes).getInt();
 
         byte[] bitField = Arrays.copyOfRange(msg,5,5 + msgLength);
-
-        // test message prints whole byte array
-        System.out.print("Received bitField (as signed bytes): ");
-        for(int i = 0; i < bitField.length; i++){
-            System.out.print((bitField[0]) + " ");
-        }
-
-        System.out.println("");
 
         // update the bit Field of the peer
         BitSet b = BitSet.valueOf(bitField);
@@ -210,10 +213,82 @@ public class HandleMessage {
         file.write(data);
         file.close();
 
-        System.out.println("got piece: " + pieceIndex);
+        System.out.println("got piece: " + pieceIndex + " from peer " + peerID); // test message
 
         // update bitField
         idToBitField.get(currID)[pieceIndex] = true;
     }
 
+    // update the peer's bitField with the given index and return if the current peer will be interested
+    public boolean handleHave(byte[] msg, Map<String,boolean[]> idToBitField) {
+
+        // extract header information & data payload
+        byte[] msgLengthBytes = Arrays.copyOfRange(msg,0,4);
+        int msgLength = ByteBuffer.wrap(msgLengthBytes).getInt();
+
+        byte[] pieceIndexBytes = Arrays.copyOfRange(msg,5,5 + msgLength);
+        int pieceIndex =  ByteBuffer.wrap(pieceIndexBytes).getInt();
+
+        Logger.receiveHave(peerID, pieceIndex);
+
+        idToBitField.get(peerID)[pieceIndex] = true;
+
+        if(idToBitField.get(currID)[pieceIndex]) { return false; } // current peer already has piece
+        return true;
+    }
+
+    // finds a needed piece the peer has, if there is not one then return -1
+    public int findPieceToRequest(Map<String,boolean[]> idToBitField) {
+        int pieceIndex = -1;
+
+        // find the piece indexes of all pieces the peer has that this peer does not have
+        ArrayList<Integer> neededPieces = new ArrayList<>();
+
+        for(int i = 0; i < idToBitField.get(currID).length; i++) {
+            if((!idToBitField.get(currID)[i]) && idToBitField.get(peerID)[i]) {
+                neededPieces.add(i);
+            }
+        }
+
+        // select a random piece
+        Random rand = new Random();
+
+        if(neededPieces.size() != 0) {
+            pieceIndex = neededPieces.get(rand.nextInt(neededPieces.size()));
+        }
+
+        return pieceIndex;
+    }
+
+    // checks if all peers are done and return true if so
+    public boolean checkIfDone(Map<String,boolean[]> idToBitField, Map<String, Boolean> idToDone) {
+
+        for (Map.Entry<String,Boolean> sent : idToDone.entrySet()) {
+            if(!sent.getValue()) {
+                return false;
+            }
+        }
+
+        for (Map.Entry<String,boolean[]> bitField : idToBitField.entrySet()) {
+            for(int i = 0; i < bitField.getValue().length; i++) {
+                if (!bitField.getValue()[i]) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    // checks if current peer is done and return true if so
+    public boolean checkSelf(Map<String,boolean[]> idToBitField) {
+
+        for(int i = 0; i < idToBitField.get(currID).length; i++) {
+            if (!idToBitField.get(currID)[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

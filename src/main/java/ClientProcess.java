@@ -26,9 +26,13 @@ public class ClientProcess extends Thread {
     public int pieceSize;
     public String fileName;
 
+    public ArrayList<Integer> newPieces;
+    int newIndex;
+    public  Map<String, Boolean> idToDone;
+
     public ClientProcess() {}
 
-    public ClientProcess(String peerAddress, String port, String currID, String peerID, Map<String,boolean[]> idToBitField, int pieceSize, String fileName) {
+    public ClientProcess(String peerAddress, String port, String currID, String peerID, Map<String,boolean[]> idToBitField, int pieceSize, String fileName, ArrayList<Integer> newPieces, Map<String, Boolean> idToDone) {
         this.currID = currID;
         this.peerID = peerID;
         this.port = Integer.parseInt(port);
@@ -36,6 +40,12 @@ public class ClientProcess extends Thread {
         this.idToBitField = idToBitField;
         this.pieceSize = pieceSize;
         this.fileName = fileName;
+
+        this.newPieces = newPieces;
+        newIndex = 0;
+
+        this.idToDone = idToDone;
+
         start();
     }
 
@@ -57,51 +67,96 @@ public class ClientProcess extends Thread {
 
                 // should exit and close if wrong peer
             }
+            else {
+                Logger.makeTCPConnection(peerID);
+            }
 
             m = new HandleMessage(currID, peerID, pieceSize, fileName);
             byte[] receivedMessage;
             boolean interested;
-
-            // Test message
-            System.out.println("Sending a test message");
-            out.writeObject(m.genStrMsg("Client Test Message"));
-
-            receivedMessage = (byte[]) in.readObject();
-            System.out.println("Peer's reply: " + m.getMsgStr(receivedMessage));
+            int pieceIndex;
+            int msgType;
+            boolean done = false;
 
             // sending initial bitField message
-            System.out.println("Sending a bitField message");
             out.writeObject(m.genBFMsg(idToBitField.get(currID)));
 
-            // receiving peer's bitField
+            // receiving peer's bitField & send interested or not interested message
             receivedMessage = (byte[]) in.readObject();
-            System.out.println("Peer's reply: ");
             interested = m.handleBFMsg(receivedMessage, idToBitField);
 
-            if(interested) {
-                out.writeObject(m.genIntMsg());
-            }
-            else {
-                out.writeObject(m.genNotIntMsg());
-            }
+            if(interested) { out.writeObject(m.genIntMsg()); }
+            else { out.writeObject(m.genNotIntMsg()); }
 
-            // find next piece to request and continuously request until there are none left
-            int pieceIndex = findPieceToRequest();
-
-            while(pieceIndex != -1) {
-                out.writeObject(m.genReqMsg(pieceIndex));
+            // while loop to receive/send messages
+            while(!done && requestSocket.isConnected()) {
                 receivedMessage = (byte[]) in.readObject();
-                m.handlePiece(receivedMessage, idToBitField);
 
-                pieceIndex = findPieceToRequest(); // find new piece
+                msgType = receivedMessage[4];
+
+                if(msgType == 2) { Logger.receiveInterested(peerID); }         // interested message
+                else if(msgType == 3) { Logger.receiveNotInterested(peerID); } // not interested message
+
+                // received request message, send peer the requested piece
+                if((msgType == 6)) {
+                    pieceIndex = m.handleRequest(receivedMessage);
+                    System.out.println("Sending piece " + pieceIndex + " to peer " + peerID); // test message
+                    out.writeObject(m.genPieceMsg(pieceIndex));
+                    idToBitField.get(peerID)[pieceIndex] = true;
+                }
+                // received have message, update peer bitField and send an interested or not interested message
+                else if((msgType == 4)) {
+                    interested = m.handleHave(receivedMessage, idToBitField); // logger is in handleHave()
+
+                    if(interested) { out.writeObject(m.genIntMsg()); }
+                    else { out.writeObject(m.genNotIntMsg()); }
+                }
+                // if the current peer has gotten new pieces send have message
+                else if((newPieces.size() > newIndex)) {
+                    pieceIndex = newPieces.get(newIndex);
+                    newIndex++;
+
+                    out.writeObject(m.genHaveMsg(pieceIndex));
+                }
+                // if interested, request pieces, find next piece to request and continuously request until there are none left
+                else if(interested) {
+                    pieceIndex = m.findPieceToRequest(idToBitField);
+
+                    while(pieceIndex != -1) {
+                        out.writeObject(m.genReqMsg(pieceIndex));
+                        receivedMessage = (byte[]) in.readObject();
+                        m.handlePiece(receivedMessage, idToBitField);
+
+                        Logger.downloadPiece(peerID, pieceIndex);
+
+                        newPieces.add(pieceIndex); // add new piece in list for have messages
+                        newIndex++;
+
+                        pieceIndex = m.findPieceToRequest(idToBitField); // find new piece
+                    }
+
+                    interested = false;
+                    out.writeObject(m.genNotIntMsg()); // peer has no needed pieces so send not interested message
+                }
+                // send a junk message as default in order to avoid deadlock (each peer is waiting for the other to send a message)
+                // sends a bitField message if the current peer is done
+                else {
+                    if(msgType == 5) { Arrays.fill(idToBitField.get(peerID), true); }
+
+                    if(m.checkSelf(idToBitField)) {
+                        out.writeObject(m.genBFMsg(idToBitField.get(currID)));
+                        idToDone.put(currID, true);
+                        idToDone.put(peerID, true);
+                    }
+                    else { out.writeObject(m.genStrMsg("")); }
+                }
+
+                done = m.checkIfDone(idToBitField, idToDone); // checks if all peers are done
             }
 
-            System.out.println("File download done");
+            Logger.downloadComplete();
 
-
-            System.out.println("");
-
-            System.out.println("this peer's bitField");
+            System.out.println("the connected peer's bitField, peer " + peerID);
 
             for(int i = 0; i < idToBitField.get(currID).length; i++){
                 if(idToBitField.get(peerID)[i]) { System.out.print("1"); }
@@ -109,7 +164,6 @@ public class ClientProcess extends Thread {
             }
 
             System.out.println("");
-
 
 
         }
@@ -165,30 +219,7 @@ public class ClientProcess extends Thread {
         return true;
     }
 
-    // finds a needed piece the peer has, if there is not one then return -1
-    public int findPieceToRequest() {
-        int pieceIndex = -1;
-
-        // find the piece indexes of all pieces the peer has that this peer does not have
-        ArrayList<Integer> neededPieces = new ArrayList<>();
-
-        for(int i = 0; i < idToBitField.get(currID).length; i++) {
-            if((!idToBitField.get(currID)[i]) && idToBitField.get(peerID)[i]) {
-                neededPieces.add(i);
-            }
-        }
-
-        // select a random piece
-        Random rand = new Random();
-
-        if(neededPieces.size() != 0) {
-            pieceIndex = neededPieces.get(rand.nextInt(neededPieces.size()));
-        }
-
-        return pieceIndex;
-    }
-
     public static void main(String[] args) throws Exception {
-        ClientProcess c = new ClientProcess("localhost", "5000", "1000", "1001", new HashMap<>(), 0, "");
+        ClientProcess c = new ClientProcess("localhost", "5000", "1000", "1001", new HashMap<>(), 0, "", new ArrayList<>(), new HashMap<>());
     }
 }

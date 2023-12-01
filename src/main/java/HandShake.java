@@ -24,7 +24,7 @@ public class HandShake {
         return byteStream.toByteArray();
     }
     public int parseHandShakeMsg(byte[] receivedMsg) throws IOException{
-        System.out.println("The received message length is: " + receivedMsg.length);
+        System.out.println("Received Handshake");
         if(receivedMsg.length!=HANDSHAKE_LENGTH){
             throw new IOException("Incorrect handshake message length");
         }

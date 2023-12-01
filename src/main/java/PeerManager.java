@@ -22,10 +22,14 @@ public class PeerManager {
     public  Map<String, boolean[]> idToBitField = new HashMap<>();    // <peerID, bitField (bool[])>
     public ArrayList<String> peerIDs = new ArrayList<>();             // list of peer id's in the order in peerInfo.cfg
 
+    public ArrayList<Integer> newPieces = new ArrayList<>();          // keeps track of any new pieces the peer receives
+    public  Map<String, Boolean> idToDone = new HashMap<>();          // keeps track of if the peer sent a done message
+
     public ClientProcess c;
     public ServerProcess s;
 
     public PeerManager() {}
+
     public PeerManager(String id) {
         currProcessID = id;
         System.out.println("The current process id is "+ currProcessID); // test message
@@ -38,6 +42,9 @@ public class PeerManager {
 
         // Set all the bits to 0 if the hasField is 0, otherwise set to true
         initBitField();
+
+        // Set up logger class (aids in logging)
+        Logger.startLogger(currProcessID);
 
         // create a dummy file if the peer does not have the file
         try {
@@ -136,6 +143,7 @@ public class PeerManager {
         {
             int size = getPieceCount();
             boolean[] bitfield = new boolean[size];
+            String id = peer.getKey();
 
             // setting bit field
             if(peer.getValue().hasFile)
@@ -144,8 +152,8 @@ public class PeerManager {
             }
 
             // Need to store the local variable in the class
-            String id = peer.getKey();
             idToBitField.put(id,bitfield);
+            idToDone.put(id, false);
         }
     }
 
@@ -168,9 +176,9 @@ public class PeerManager {
         String port = currPeer.peerPort;
 
         // create server for peer
-        s = new ServerProcess(port, currProcessID, idToBitField, PieceSize, FileName);
+        s = new ServerProcess(port, currProcessID, peerIDs, idToBitField, PieceSize, FileName, newPieces, idToDone);
 
-        TimeUnit.SECONDS.sleep(1); // Used to delay so test messages do not overlap
+        //TimeUnit.SECONDS.sleep(1); // Used to delay so test messages do not overlap
 
         // Find which peers to send a connection to (only connect to prev peers in PeerInfo.cfg)
         String p;
@@ -183,10 +191,10 @@ public class PeerManager {
                 i = peerIDs.size();
             }
             else {
-                c = new ClientProcess(peerInfoMap.get(p).peerAddress, peerInfoMap.get(p).peerPort, currProcessID, p, idToBitField, PieceSize, FileName);
+                c = new ClientProcess(peerInfoMap.get(p).peerAddress, peerInfoMap.get(p).peerPort, currProcessID, p, idToBitField, PieceSize, FileName, newPieces, idToDone);
             }
 
-            TimeUnit.SECONDS.sleep(1); // Used to delay so test messages do not overlap
+            //TimeUnit.SECONDS.sleep(1); // Used to delay so test messages do not overlap
         }
     }
 

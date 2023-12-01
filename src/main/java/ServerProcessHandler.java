@@ -1,8 +1,12 @@
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Array;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Random;
 
 public class ServerProcessHandler extends Thread {
     public String currID;
@@ -11,6 +15,10 @@ public class ServerProcessHandler extends Thread {
     public Map<String,boolean[]> idToBitField;
     public int pieceSize;
     public String fileName;
+
+    public ArrayList<Integer> newPieces;
+    int newIndex;
+    public  Map<String, Boolean> idToDone;
 
     private ServerProcess serverProcess;
     public ObjectOutputStream out;
@@ -21,13 +29,18 @@ public class ServerProcessHandler extends Thread {
 
     public ServerProcessHandler() {}
 
-    public ServerProcessHandler(Socket connection, String currID, ServerProcess serverProcess, Map<String,boolean[]> idToBitField, int pieceSize, String fileName) {
+    public ServerProcessHandler(Socket connection, String currID, ServerProcess serverProcess, Map<String,boolean[]> idToBitField, int pieceSize, String fileName, ArrayList<Integer> newPieces, Map<String, Boolean> idToDone) {
         this.connection = connection;
         this.currID = currID;
         this.serverProcess = serverProcess;
         this.idToBitField = idToBitField;
         this.pieceSize = pieceSize;
         this.fileName = fileName;
+
+        this.newPieces = newPieces;
+        newIndex = 0;
+
+        this.idToDone = idToDone;
     }
 
     // facilitates messaging between client
@@ -43,13 +56,15 @@ public class ServerProcessHandler extends Thread {
             int receivedPeerID = hs.parseHandShakeMsg(receivedMessage);
             peerID = String.valueOf(receivedPeerID);
 
+            Logger.madeTCPConnection(peerID);
+
             System.out.println("Received peer ID: " + receivedPeerID); // test message
 
             if(receivedPeerID == ServerProcess.magicKiller){
                 this.serverProcess.shouldBreak = true;
             }
 
-            // send this peer's id
+            // send this peer's id (part of handshake)
             out.writeObject(currID);
             out.flush();
 
@@ -57,68 +72,100 @@ public class ServerProcessHandler extends Thread {
             byte msgType;
             boolean interested;
             int pieceIndex;
+            boolean done = false;
 
-            // while loop to receive messages
-            while(true) {
-                receivedMessage = (byte[])in.readObject();
+            // expecting bitField message, sends bitField in return
+            receivedMessage = (byte[])in.readObject();
+            interested = m.handleBFMsg(receivedMessage, idToBitField);
+            out.writeObject(m.genBFMsg(idToBitField.get(currID)));
+
+            // expecting interested message, send interested or not interested message
+            receivedMessage = (byte[])in.readObject();
+
+            msgType = receivedMessage[4];
+
+            if(msgType == 2) { Logger.receiveInterested(peerID); }         // received interested message
+            else if(msgType == 3) { Logger.receiveNotInterested(peerID); } // received not interested message
+
+            if(interested) { out.writeObject(m.genIntMsg()); }
+            else { out.writeObject(m.genNotIntMsg()); }
+
+            // while loop to receive/send messages
+            while(!done && connection.isConnected()) {
+                receivedMessage = (byte[]) in.readObject();
+
                 msgType = receivedMessage[4];
 
-                switch (msgType) {
-                    case 0:
-                        System.out.println("Received message (choke): ");
-                        break;
+                if(msgType == 2) { Logger.receiveInterested(peerID); }         // interested message
+                else if(msgType == 3) { Logger.receiveNotInterested(peerID); } // not interested message
 
-                    case 1:
-                        System.out.println("Received message (unchoke): ");
-                        break;
+                // received request message, send peer the requested piece
+                if((msgType == 6)) {
+                    pieceIndex = m.handleRequest(receivedMessage);
+                    System.out.println("Sending piece " + pieceIndex + " to peer " + peerID); // test message
+                    out.writeObject(m.genPieceMsg(pieceIndex));
+                    idToBitField.get(peerID)[pieceIndex] = true;
+                }
+                // received have message, update peer bitField and send an interested or not interested message
+                else if((msgType == 4)) {
+                    interested = m.handleHave(receivedMessage, idToBitField); // logger is in handleHave()
 
-                    case 2:
-                        System.out.println("Received message (interested): ");
+                    if(interested) { out.writeObject(m.genIntMsg()); }
+                    else { out.writeObject(m.genNotIntMsg()); }
+                }
+                // if the current peer has gotten new pieces send have message
+                else if((newPieces.size() > newIndex)) {
+                    pieceIndex = newPieces.get(newIndex);
+                    newIndex++;
 
+                    out.writeObject(m.genHaveMsg(pieceIndex));
+                }
+                // if interested, request pieces, find next piece to request and continuously request until there are none left
+                else if(interested) {
+                    pieceIndex = m.findPieceToRequest(idToBitField);
 
+                    while(pieceIndex != -1) {
+                        out.writeObject(m.genReqMsg(pieceIndex));
+                        receivedMessage = (byte[]) in.readObject();
+                        m.handlePiece(receivedMessage, idToBitField);
 
-                        break;
+                        Logger.downloadPiece(peerID, pieceIndex);
 
-                    case 3:
-                        System.out.println("Received message (not interested): ");
-                        break;
+                        newPieces.add(pieceIndex); // add new piece in list for have messages
+                        newIndex++;
 
-                    case 4:
-                        System.out.println("Received message (have): ");
-                        break;
+                        pieceIndex = m.findPieceToRequest(idToBitField); // find new piece
+                    }
 
-                    case 5:
-                        System.out.println("Received message (bitfield): ");
+                    interested = false;
+                    out.writeObject(m.genNotIntMsg()); // peer has no needed pieces so send not interested message
+                }
+                // send a junk message as default in order to avoid deadlock (each peer is waiting for the other to send a message)
+                // sends a bitField message if the current peer is done
+                else {
+                    if(msgType == 5) { Arrays.fill(idToBitField.get(peerID), true); }
 
-                        // update bit map of peers & sees if it is interested with it
-                        interested = m.handleBFMsg(receivedMessage, idToBitField);
+                    if(m.checkSelf(idToBitField)) {
                         out.writeObject(m.genBFMsg(idToBitField.get(currID)));
-
-                        break;
-
-                    case 6:
-                        System.out.println("Received message (request): ");
-
-                        // send peer the requested piece
-                        pieceIndex = m.handleRequest(receivedMessage);
-                        System.out.println("Sending piece " + pieceIndex);
-                        out.writeObject(m.genPieceMsg(pieceIndex));
-
-                        break;
-
-                    case 7:
-                        System.out.println("Received message (piece): ");
-                        break;
-
-                    default:
-                        System.out.println("Received test message: " + m.getMsgStr(receivedMessage));
-                        out.writeObject(m.genStrMsg("Test reply message"));
-
-                        break;
+                        idToDone.put(currID, true);
+                        idToDone.put(peerID, true);
+                    }
+                    else { out.writeObject(m.genStrMsg("")); }
                 }
 
-
+                done = m.checkIfDone(idToBitField, idToDone); // checks if all peers are done
             }
+
+            Logger.downloadComplete();
+
+            System.out.println("the connected peer's bitField, peer " + peerID);
+
+            for(int i = 0; i < idToBitField.get(currID).length; i++){
+                if(idToBitField.get(peerID)[i]) { System.out.print("1"); }
+                else { System.out.print("0"); }
+            }
+
+            System.out.println("");
 
 
         }
@@ -127,6 +174,19 @@ public class ServerProcessHandler extends Thread {
         }
         catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
+        }
+        finally {
+            //Close connections
+            try {
+                System.out.println("Closing server");
+
+                in.close();
+                out.close();
+                connection.close();
+            }
+            catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
         }
     }
 }

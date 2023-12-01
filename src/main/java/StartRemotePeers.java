@@ -116,7 +116,7 @@ public class StartRemotePeers {
 			for(int i = processList.size() - 1; i >= 0; i--){
 				ProcessTuple p = processList.get(i);
 				System.out.println("Waiting for " + p.n);
-				p.p.getInputStream().transferTo(bf);
+				//p.p.getInputStream().transferTo(bf);
 //				p.getErrorStream().transferTo(bf);
 				int exitVal = p.p.waitFor();
 //				System.out.println(line + "Completed");
