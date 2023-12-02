@@ -167,7 +167,6 @@ public class ServerProcessHandler extends Thread {
 
             System.out.println("");
 
-
         }
         catch(IOException e){
             System.out.println("Failed to initialize server side stream");

@@ -52,7 +52,7 @@ public class ClientProcess extends Thread {
     // Attempt to connect to peer with given address and port
     public void run() {
         try {
-            peerAddress = "localhost"; // added to test locally, change to target address
+            // peerAddress = "localhost"; // added to test locally
             System.out.println("Attempting to handshake peer " + peerID); // test message
 
             requestSocket = new Socket(peerAddress, port);
