@@ -69,6 +69,8 @@ public class PeerManager {
         try {
             BufferedReader in = new BufferedReader(new FileReader("../../../resources/Common.cfg"));
 
+            System.out.println("Reading Common.cfg"); // test message
+
             while((line = in.readLine()) != null) {
                 String[] tokens = line.split("\\s+");
                 String identifier = tokens[0];
@@ -76,26 +78,35 @@ public class PeerManager {
                 switch (identifier) {
                     case "NumberOfPreferredNeighbors":
                         NumberOfPreferredNeighbors = Integer.parseInt(tokens[1]);
+                        System.out.println("Number of preferred neighbors: " + tokens[1]); // test message
                         break;
                     case "UnchokingInterval":
                         UnchokingInterval = Integer.parseInt(tokens[1]);
+                        System.out.println("Unchoking interval: " + tokens[1]); // test message
                         break;
                     case "OptimisticUnchokingInterval":
                         OptimisticUnchokingInterval = Integer.parseInt(tokens[1]);
+                        System.out.println("Optimistic unchoking interval: " + tokens[1]); // test message
                         break;
                     case "FileName":
                         FileName = tokens[1];
+                        System.out.println("File name: " + tokens[1]); // test message
                         break;
                     case "FileSize":
                         FileSize = Integer.parseInt(tokens[1]);
+                        System.out.println("File size: " + tokens[1]); // test message
                         break;
                     case "PieceSize":
                         PieceSize = Integer.parseInt(tokens[1]);
+                        System.out.println("Piece size: " + tokens[1]); // test message
                         break;
                     default:
                         break;
                 }
             }
+
+            System.out.println(""); // test message
+
             in.close();
         }
         catch(FileNotFoundException e) {
@@ -110,6 +121,8 @@ public class PeerManager {
     public void readPeerInfo() {
         String st;
 
+        System.out.println("Reading PeerInfo.cfg:"); // test message
+
         try {
             BufferedReader in = new BufferedReader(new FileReader("../../../resources/PeerInfo.cfg"));
 
@@ -118,12 +131,16 @@ public class PeerManager {
 
                 peerInfoMap.put(tokens[0], new RemotePeerInfo(tokens[0], tokens[1], tokens[2], tokens[3].equals("1")));
                 peerIDs.add(tokens[0]);
+
+                System.out.println("Peer " + tokens[0] + " info: " + tokens[1] + " " + tokens[2] + " " + tokens[3]); // test message
             }
             in.close();
         }
         catch (Exception ex) {
             System.out.println(ex.toString());
         }
+
+        System.out.println(""); // test message
     }
 
     // Calculate piece count

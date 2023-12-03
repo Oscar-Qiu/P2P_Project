@@ -169,6 +169,10 @@ public class HandleMessage {
             idToBitField.get(peerID)[i] = b.get(i);
         }
 
+        System.out.println("Received peer's bit field (as signed bytes): "); // test message
+        for(int i = 0; i < bitField.length; i++) { System.out.print((bitField[0]) + " "); } // test message
+        System.out.println(""); // test message
+
         // checks to see if peer has any needed pieces
         boolean interested = false;
 

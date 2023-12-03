@@ -53,6 +53,7 @@ public class ClientProcess extends Thread {
     public void run() {
         try {
             // peerAddress = "localhost"; // added to test locally
+
             System.out.println("Attempting to handshake peer " + peerID); // test message
 
             requestSocket = new Socket(peerAddress, port);
@@ -100,7 +101,9 @@ public class ClientProcess extends Thread {
                 // received request message, send peer the requested piece
                 if((msgType == 6)) {
                     pieceIndex = m.handleRequest(receivedMessage);
+
                     System.out.println("Sending piece " + pieceIndex + " to peer " + peerID); // test message
+
                     out.writeObject(m.genPieceMsg(pieceIndex));
                     idToBitField.get(peerID)[pieceIndex] = true;
                 }
@@ -139,33 +142,23 @@ public class ClientProcess extends Thread {
                     out.writeObject(m.genNotIntMsg()); // peer has no needed pieces so send not interested message
                 }
                 // send a junk message as default in order to avoid deadlock (each peer is waiting for the other to send a message)
-                // sends a bitField message if the current peer is done
+                // sends a corresponding message if the current peer is done
                 else {
-                    if(msgType == 5) { Arrays.fill(idToBitField.get(peerID), true); }
+                    if(msgType == 8 && m.getMsgStr(receivedMessage).equals("1")) { Arrays.fill(idToBitField.get(peerID), true); }
 
                     if(m.checkSelf(idToBitField)) {
-                        out.writeObject(m.genBFMsg(idToBitField.get(currID)));
+                        out.writeObject(m.genStrMsg("1"));
+
+                        if(!idToDone.get(currID)) { Logger.downloadComplete(); }
+
                         idToDone.put(currID, true);
                         idToDone.put(peerID, true);
                     }
-                    else { out.writeObject(m.genStrMsg("")); }
+                    else { out.writeObject(m.genStrMsg("0")); }
                 }
 
                 done = m.checkIfDone(idToBitField, idToDone); // checks if all peers are done
             }
-
-            Logger.downloadComplete();
-
-            System.out.println("the connected peer's bitField, peer " + peerID);
-
-            for(int i = 0; i < idToBitField.get(currID).length; i++){
-                if(idToBitField.get(peerID)[i]) { System.out.print("1"); }
-                else { System.out.print("0"); }
-            }
-
-            System.out.println("");
-
-
         }
         catch (ConnectException e) {
             System.err.println("Connection refused. You need to initiate a server first.");
@@ -205,7 +198,7 @@ public class ClientProcess extends Thread {
 
             // incoming message from server
             String s = (String) in.readObject();
-            System.out.println("Handshake response message: " + s); // test message
+            System.out.println("Connected peer's ID: " + s); // test message
 
             // if connected to wrong peer, return false
             if (!s.equals(peerID)) {
