@@ -34,7 +34,8 @@ https://youtu.be/dSSPitSSyAY
 
 ## <u>Project Limitations</u>
 
-Choking/unchoking protocols are not implemented.
+- Choking/unchoking protocols are not implemented.
+- Test messages were kept in so the user knows if the program is stuck (process doesn't end) or if the downlaoding is taking a while (rather than just it being blank)
 
 ## <u>Running Program</u>
 
