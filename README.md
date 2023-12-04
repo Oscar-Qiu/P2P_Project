@@ -43,7 +43,7 @@ For local use (creating peers manually):
 2. If desired, change PeerInfo.cfg in /resources (each column describes peer id, peer address, port number, and if the peer has the file)
 3. For testing locally, change adresses to localhost and make sure each port is different
 4. If desired, change Common.cfg to match the target file for download
-5. Make sure there are enough peer folders (/peer_peerid) and they contain the target file depending on the cfg files
+5. Make sure there are enough peer folders (/peer_peerId) and they contain the target file depending on the cfg files
 6. In the project directory, move to /src/main/java and compile all java files
 ```
 cd ./src/main/java
@@ -51,7 +51,7 @@ cd ./src/main/java
 ```
 javac *.java
 ```
-7. In the same directory, run java PeerProcess peerid for each peer
+7. In the same directory, run java PeerProcess peerId for each peer
 ```
 java PeerProcess <peer id>
 ```
