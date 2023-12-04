@@ -3,7 +3,7 @@
 ## <u>Group Members</u>
 
 - Pablo Gonzalez, pablogonzalez@ufl.edu
-- Yiheng Qui, 
+- Yiheng Qiu, yiheng.qiu@ufl.edu
 - Raul Rodriguez, raul.rodriguez@ufl.edu
 
 ## <u>Contributions</u>
@@ -71,9 +71,11 @@ An example for remote use can include using Intellij IDEA and WinSCP:
 
 ## <u>Protocols</u>
 
+Peers:
 - When a peer is created, it will connect to all peers before it in PeerInfo.cfg
 - Each peer keeps bitfields for all other peers
 - Peers terminate when all peers are done downloading
+- After tha initial handshake, bitfield, and interest messages the connected peers can start sending data
 
 Handshaking:
 - When a connection is made, the connecting peer will send a handshake message
@@ -98,6 +100,3 @@ Request & piece messaging
 - The piece index requested is chosen randomly from the pieces that the connected peer has and the current peer does not
 - When receiving a request message, the peer will send a piece message containing the piece data
 - When receiving a piece message, the peer will send another request message unless there are no pieces to choose from
-
-## <u>Notes</u>
-
