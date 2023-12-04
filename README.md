@@ -18,7 +18,10 @@ Choking/unchoking protocols are not implemented.
 
 For local use:
 1. Unzip project (if applicable)
-2. 
+2. If desired, change PeerInfo.cfg in /resources (each column describes peer id, peer address, port number, and if the peer has the file)
+3. For testing locally, change adresses to localhost and make sure each port is different
+4. If desired change Common.cfg to match the target file for download
+5. Make sure there are enough peer folders (/peer_<peer id>) and they contain the target file depending on the cfg files
 
 ## <u>Protocols</u>
 
