@@ -1,2 +1,0 @@
-Error: Could not find or load main class PeerProcess
-Caused by: java.lang.ClassNotFoundException: PeerProcess
