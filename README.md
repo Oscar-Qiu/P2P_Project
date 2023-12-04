@@ -72,14 +72,32 @@ An example for remote use can include using Intellij IDEA and WinSCP:
 ## <u>Protocols</u>
 
 - When a peer is created, it will connect to all peers before it in PeerInfo.cfg
-- 
+- Each peer keeps bitfields for all other peers
+- Peers terminate when all peers are done downloading
+
 Handshaking:
 - When a connection is made, the connecting peer will send a handshake message
 - The receiver will send a handshake message in return, where the first peer will check if the peer is the correct one
 
 Bitfield messaging:
 - After the handshake process, the peer will send a bitfield message containing their bitfield
-- the receiver will also send a bitfield message in return
-- 
+- The receiver will also send a bitfield message in return
+- When a peer gets a bitfield message, that peer will update their bitfield of that connected peer (sender)
+
+Interest mmessaging:
+- After the bitfield messaging, or when a peer receives a have message, they will send an interested or not interested message
+- The current peer will be interested if the connected peer has a piece in their bitfield that the current peer does not have
+- For a have message the peer can just compare their bitfield to the piece index in the have message
+
+Have messaging:
+- When a peer receives a piece, it will send a have message to all other peers containing the index of that piece
+- When receiving a have message, that peer will update their bitfield of the peer that sent it
+
+Request & piece messaging
+- If a connected peer has a piece that the current peer does not, the current peer will send a request message
+- The piece index requested is chosen randomly from the pieces that the connected peer has and the current peer does not
+- When receiving a request message, the peer will send a piece message containing the piece data
+- When receiving a piece message, the peer will send another request message unless there are no pieces to choose from
 
 ## <u>Notes</u>
+
